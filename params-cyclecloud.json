@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+"parameters": {
+  "vnetName": { "value": "cyclevnet" },
+  "cycle_subnet": { "value": "cycle"},
+  "cyclevmSize" : {"value": "Standard_D3_v2"},
+  "cyclevmStorage": {"value": "Standard_LRS"},
+  "cycleDownloadURL": { "value": "" },
+  "cycleLicenseURL" : {"value": ""},
+  "rsaPublicKey": { "value": ""},
+  "cyclePortalAccount": { "value": "user@contoso.com"},
+  "cyclePortalPW": {"value": "ContosoUser123"},
+  "applicationSecret": {"value": ""},
+  "tenantId": {"value": ""},
+  "applicationId": {"value": ""},
+  "cyclecloudAdminPW" : {"value": ""}
+}
+}
+

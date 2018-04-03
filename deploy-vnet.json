@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "maxLength": 32,
+      "type": "string",
+      "metadata": {
+        "description": "Name of the VNET to create"
+      }
+    }
+  },
+  "variables": {
+    "namingInfix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+    "resourceLocation": "[resourceGroup().location]",
+    "networkApiVersion": "2017-06-01"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[variables('resourceLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/20"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "cycle",
+            "properties": {
+              "addressPrefix": "10.0.1.0/28"
+            }
+          },
+          {
+            "name": "user",
+            "properties": {
+              "addressPrefix": "10.0.3.0/24"
+            }
+          },
+          {
+            "name": "compute",
+            "properties": {
+              "addressPrefix": "10.0.4.0/22"
+            }
+          }
+        ],
+        "virtualNetworkPeerings": []
+      },
+      "dependsOn": []
+    }
+  ]
+}
