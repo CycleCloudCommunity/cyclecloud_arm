@@ -144,7 +144,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     _catch_sys_error(["/usr/local/bin/cyclecloud", "account", "create", "-f", azure_data_file])
 
     # stash the cyclecloud configs into the admin_user account as well
-    copytree(homedir + "/.cycle", "/home/" + admin_user + "/" )
+    copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle" )
 
 
 
