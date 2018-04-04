@@ -1,9 +1,9 @@
 # CycleCloud ARM 
-Deploying a CycleCloud server into an Azure subscription using Azure Resource Manager templates
+Deploying Azure CycleCloud into a subscription using an Azure Resource Manager template
 
 ## Introduction
-- This repo contains am ARM template for deploying CycleCloud in Azure.
-- There are two ARM templates in here. 
+- This repo contains an ARM template for deploying Azure CycleCloud.
+- There are two ARM templates in here: 
     - `deploy-vnet.json` creates a VNET with 3 separate subnets:
         1. `cycle`: The subnet in which the CycleCloud server is started in.
         2. `compute`: A /22 subnet for the HPC clusters
