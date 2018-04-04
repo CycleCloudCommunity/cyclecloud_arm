@@ -145,6 +145,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
 
     # stash the cyclecloud configs into the admin_user account as well
     copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle" )
+    _catch_sys_error(["chown", "-R", admin_user , "/home/" + admin_user + "/.cycle"])
 
 
 
