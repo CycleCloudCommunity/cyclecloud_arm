@@ -199,7 +199,7 @@ def modify_cs_config():
     _catch_sys_error(["chown", "-R", "cycle_server.", cycle_root])
 
 
-def generate_ssh_key():
+def generate_ssh_key(admin_user):
     print "Creating an SSH private key for VM access"
     homedir = path.expanduser("~")
     sshdir = homedir + "/.ssh"
@@ -221,6 +221,18 @@ def generate_ssh_key():
         copy2(sshkeyfile, cs_sshkeyfile)
         _catch_sys_error(["chown", "-R", "cycle_server.", cs_sshdir])
         _catch_sys_error(["chmod", "700", cs_sshdir])
+
+    # make the cyclecloud.pem available to the login user as well
+    adminuser_sshdir = "/home/" + admin_user + "/.ssh"
+    adminuser_sshkeyfile = adminuser_sshdir + "/cyclecloud.pem"
+
+    if not path.isdir(adminuser_sshdir):
+        makedirs(adminuser_sshdir)
+    
+    if not path.isdir(adminuser_sshkeyfile):
+        copy2(sshkeyfile, adminuser_sshkeyfile)
+        _catch_sys_error(["chown", "-R", admin_user, adminuser_sshdir])
+        _catch_sys_error(["chmod", "700", adminuser_sshdir])
 
 
 def cc_license(license_url):
@@ -315,7 +327,7 @@ def main():
 
     install_pre_req()
     download_install_cc(args.downloadURL) 
-    generate_ssh_key()
+    generate_ssh_key(args.adminUser)
     modify_cs_config()
     cc_license(args.licenseURL)
     start_cc()
