@@ -12,20 +12,6 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 - If you have a VNET (or subnets) that you want to deploy in, you can skip the the Vnet deployment. 
 
 
-## Create VNET
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fmaster%2Fdeploy-vnet.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png" />
-</a>
-
-## Create CycleCloud Server and Jumpbox server
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fmaster%2Fdeploy-cyclecloud.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png" />
-</a>
-
-
-
-
-
 ## Pre-requisites
 1. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview?view=azure-cli-latest) installed and configured with an Azure subscription
 
