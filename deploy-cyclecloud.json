@@ -39,7 +39,7 @@
             "metadata": {
                 "description": "Cycle Portal Account User Email Address"
             },
-            "type": "securestring"
+            "type": "string"
         },
         "cyclecloudAdminPW": {
             "maxLength": 128,
