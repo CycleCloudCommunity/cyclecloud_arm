@@ -74,6 +74,7 @@
             "metadata": {
                 "description": "Cycle download URI"
             },
+            "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloud681",
             "type": "securestring"
         },
         "cycleLicenseURL": {
@@ -81,6 +82,7 @@
             "metadata": {
                 "description": "SAS key to Cycle License blob"
             },
+            "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloudlicense/license.dat?se=2018-10-31&sp=r&sv=2017-04-17&sr=b&sig=k6m2%2BLQj0tY1EIxosJJWt2VdIfjyPwfR/keFOwf0kIw%3D",
             "type": "securestring"
         },
         "adminUser": {
