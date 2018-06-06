@@ -320,7 +320,7 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', '--cyclePortalPW ', '\"', parameters('cyclePortalPW'), '\"', ' --cyclePortalAccount ', '\"', parameters('cyclePortalAccount'), '\"', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cyclecloudAdminPW ', '\'', parameters('cyclecloudAdminPW'), '\'',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
+        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', '--cyclePortalPW ', '\"', parameters('cyclePortalPW'), '\"', ' --cyclePortalAccount ', '\"', parameters('cyclePortalAccount'), '\"', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cyclecloudAdminPW ', '\"', parameters('cyclecloudAdminPW'), '\"',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cycleserver",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
