@@ -123,7 +123,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     sleep(5)
 
     print "Initializing cylcecloud CLI"
-    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost", "--verify-ssl=false", "--username=admin", password_flag])    
+    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost:8443", "--verify-ssl=false", "--username=admin", password_flag])    
 
     homedir = path.expanduser("~")
     cycle_config = homedir + "/.cycle/config.ini"

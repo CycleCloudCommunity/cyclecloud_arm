@@ -27,20 +27,6 @@
 
             "type": "string"
         },
-       "cyclePortalPW": {
-            "maxLength": 128,
-            "metadata": {
-                "description": "Cycle Portal Account Password"
-            },
-            "type": "securestring"
-        },
-        "cyclePortalAccount": {
-            "maxLength": 128,
-            "metadata": {
-                "description": "Cycle Portal Account User Email Address"
-            },
-            "type": "string"
-        },
         "cyclecloudAdminPW": {
             "maxLength": 128,
             "metadata": {
@@ -328,8 +314,7 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
-        "singleQuote" : "'",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', '--cyclePortalPW ', '\"', parameters('cyclePortalPW'), '\"', ' --cyclePortalAccount ', '\"', parameters('cyclePortalAccount'), '\"', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
+        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cycleserver",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
