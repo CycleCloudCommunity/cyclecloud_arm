@@ -339,9 +339,9 @@ def main():
     modify_cs_config()
     cc_license(args.licenseURL)
     start_cc()
-    # account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser)
+    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser)
 
-    # clean_up()
+    clean_up()
 
 
 if __name__ == "__main__":
