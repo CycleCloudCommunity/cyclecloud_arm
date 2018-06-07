@@ -156,6 +156,10 @@ def start_cc():
     _catch_sys_error([cs_cmd, "await_startup"])
     _catch_sys_error([cs_cmd, "status"])
 
+    # use iptables to foward 80 and 443 to 8080 and 8443 respectively
+    _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "80", "-j", "REDIRECT", "--to-port", "8080"])
+    _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "443", "-j", "REDIRECT", "--to-port", "8443"])
+
 def _sslCert(randomPW):
     print "Generating self-signed SSL cert"
     _catch_sys_error(["/bin/keytool", "-genkey", "-alias", "CycleServer", "-keypass", randomPW, "-keystore", cycle_root + "/.keystore", "-storepass", randomPW, "-keyalg", "RSA", "-noprompt", "-dname", "CN=cycleserver.azure.com,OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown"])
@@ -178,10 +182,10 @@ def modify_cs_config():
             for line in cs_config:
                 if 'webServerMaxHeapSize=' in line:
                     new_config.write('webServerMaxHeapSize=4096M')
-                elif 'webServerPort=' in line:
-                    new_config.write('webServerPort=80')
-                elif 'webServerSslPort=' in line:
-                    new_config.write('webServerSslPort=443')
+                # elif 'webServerPort=' in line:
+                #     new_config.write('webServerPort=80')
+                # elif 'webServerSslPort=' in line:
+                #     new_config.write('webServerSslPort=443')
                 elif 'webServerEnableHttps=' in line:
                     new_config.write('webServerEnableHttps=true')
                 elif 'webServerRedirectHttp=' in line:
