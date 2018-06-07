@@ -123,7 +123,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     sleep(5)
 
     print "Initializing cylcecloud CLI"
-    _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost", "--verify-ssl=false", "--username=admin", password_flag])    
+    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost", "--verify-ssl=false", "--username=admin", password_flag])    
 
     homedir = path.expanduser("~")
     cycle_config = homedir + "/.cycle/config.ini"
@@ -140,7 +140,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
 
     print "Registering Azure subscription"
     # create the cloud provide account
-    _catch_sys_error(["/usr/local/bin/cyclecloud", "account", "create", "-f", azure_data_file])
+    _catch_sys_error(["/usr/bin/cyclecloud", "account", "create", "-f", azure_data_file])
 
     # stash the cyclecloud configs into the admin_user account as well
     copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle" )
