@@ -7,7 +7,7 @@ import re
 from random import SystemRandom
 from string import ascii_letters, ascii_lowercase, digits
 from subprocess import CalledProcessError, check_output 
-from os import path, makedirs, chdir, fdopen, remove
+from os import path, listdir, makedirs, chdir, fdopen, remove
 from urllib2 import urlopen, Request
 from urllib import urlretrieve
 from shutil import rmtree, copy2, move, copytree
@@ -46,7 +46,6 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
 
     random_suffix = ''.join(SystemRandom().choice(ascii_lowercase) for _ in range(14))
 
-    non_alphanu = re.compile('[\W_]+')
     storage_account_name = 'cyclecloud'  + random_suffix 
 
     azure_data = {
@@ -243,46 +242,52 @@ def cc_license(license_url):
     _catch_sys_error(["chown", "cycle_server.", license_file])
 
 
-def download_install_cc(download_url):    
+def download_install_cc(download_url, version):    
     chdir(tmpdir)
-    cc_url = download_url + "/cycle_server-all-linux64.tar.gz"
-    cli_url = download_url + "/cyclecloud-cli.linux64.tar.gz"
-    pogo_url = download_url + "/pogo-cli.linux64.tar.gz"
+    cyclecloud_rpm = "cyclecloud-" + version + ".x86_64.rpm"
+    cyclecloud_tar = "cyclecloud-" + version + ".linux64.tar.gz" 
+    cc_url = download_url + "/" + version + "/" + cyclecloud_tar
 
     print "Downloading CycleCloud from " + cc_url
-    urlretrieve (cc_url, "cycle_server-all-linux64.tar.gz")
-    print "Downloading CycleCloud CLI from " + cli_url
-    urlretrieve (cli_url, "cyclecloud-cli.linux64.tar.gz")
-    print "Downloading Pogo CLI from " + pogo_url
-    urlretrieve (pogo_url, "pogo-cli.linux64.tar.gz")
+    urlretrieve (cc_url, cyclecloud_tar)
 
-    print "Unpacking tar files"
-    cc_tar = tarfile.open("cycle_server-all-linux64.tar.gz", "r:gz")
+    cc_tar = tarfile.open(cyclecloud_tar, "r:gz")
     cc_tar.extractall(path=tmpdir)
     cc_tar.close()
 
-    
-    cli_tar = tarfile.open("cyclecloud-cli.linux64.tar.gz", "r:gz")
-    cli_tar.extractall(path=tmpdir)
-    cli_tar.close()
-    copy2("cyclecloud", "/usr/local/bin")
 
-    pogo_tar = tarfile.open("pogo-cli.linux64.tar.gz", "r:gz")
-    pogo_tar.extractall(path=tmpdir)
-    pogo_tar.close()
-    copy2("pogo", "/usr/local/bin")
+    # CLI comes with an install script but that installation is user specific
+    # rather than system wide. 
+    # Downloading and installing pip, then using that to install the CLIs 
+    # from source.
+    print "Unzip and install CLI"
+    _catch_sys_error(["unzip", "cycle_server/cli/cyclecloud-cli.zip"]) 
+    for cli_install_dir in listdir("."):
+        if path.isdir(cli_install_dir) and re.match("cyclecloud-cli-installer", cli_install_dir):
+            print "Found CLI install DIR %s" % cli_install_dir
+            chdir(cli_install_dir + "/packages")
+            urlretrieve("https://bootstrap.pypa.io/get-pip.py", "get-pip.py")
+            _catch_sys_error(["python", "get-pip.py"]) 
+            _catch_sys_error(["pip", "install", "cyclecloud-cli-sdist.tar.gz"]) 
+            _catch_sys_error(["pip", "install", "pogo-sdist.tar.gz"]) 
 
+    chdir(tmpdir)
     _catch_sys_error(["cycle_server/install.sh", "--nostart"])
 
 
 def install_pre_req():
     print "Installing pre-requisites for CycleCloud server"
-    _catch_sys_error(["yum", "install", "-y", "java-1.8.0-openjdk"])
+    _catch_sys_error(["yum", "install", "-y", "java-1.8.0-openjdk-headless"])
 
 def main():
     
     parser = argparse.ArgumentParser(description="usage: %prog [options]")
 
+
+    parser.add_argument("--cycleCloudVersion",
+                      dest="cycleCloudVersion",
+                    #   required=True,
+                      help="CycleCloud version to install")
 
     parser.add_argument("--downloadURL",
                       dest="downloadURL",
@@ -326,14 +331,14 @@ def main():
     print("Debugging arguments: %s" % args)
 
     install_pre_req()
-    download_install_cc(args.downloadURL) 
+    download_install_cc(args.downloadURL, args.cycleCloudVersion) 
     generate_ssh_key(args.adminUser)
     modify_cs_config()
     cc_license(args.licenseURL)
     start_cc()
-    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser)
+    # account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser)
 
-    clean_up()
+    # clean_up()
 
 
 if __name__ == "__main__":
