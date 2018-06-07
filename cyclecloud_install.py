@@ -182,16 +182,15 @@ def modify_cs_config():
             for line in cs_config:
                 if 'webServerMaxHeapSize=' in line:
                     new_config.write('webServerMaxHeapSize=4096M')
-                # elif 'webServerPort=' in line:
-                #     new_config.write('webServerPort=80')
-                # elif 'webServerSslPort=' in line:
-                #     new_config.write('webServerSslPort=443')
                 elif 'webServerEnableHttps=' in line:
                     new_config.write('webServerEnableHttps=true')
                 elif 'webServerRedirectHttp=' in line:
                     new_config.write('webServerRedirectHttp=true')
                 elif 'webServerKeystorePass=' in line:
                     new_config.write('webServerKeystorePass=' + randomPW)
+                elif 'webServerKeystorePass=' in line:
+                    new_config.write(
+                        'webServerJvmOptions=-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true')
                 else:
                     new_config.write(line)
 
