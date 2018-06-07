@@ -69,12 +69,20 @@
             },
             "type": "securestring"
         },
+        "cycleCloudVersion": {
+            "maxLength": 32,
+            "metadata": {
+                "description": "CycleCloud Software Version to install"
+            },
+            "defaultValue": "7.3.0",
+            "type": "securestring"
+        },
         "cycleDownloadURL": {
             "maxLength": 256,
             "metadata": {
                 "description": "Cycle download URI"
             },
-            "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloud681",
+            "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
             "type": "securestring"
         },
         "cycleLicenseURL": {
@@ -271,7 +279,7 @@
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
-                            "fileUris": ["https://raw.githubusercontent.com/CycleCloudCommunity/cyclecloud_arm/master/cyclecloud_install.py"]
+                            "fileUris": ["https://raw.githubusercontent.com/CycleCloudCommunity/cyclecloud_arm/azure-release/cyclecloud_install.py"]
                         },
                         "type": "CustomScript",
                         "typeHandlerVersion": "2.0"
@@ -321,7 +329,7 @@
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
         "singleQuote" : "'",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', '--cyclePortalPW ', '\"', parameters('cyclePortalPW'), '\"', ' --cyclePortalAccount ', '\"', parameters('cyclePortalAccount'), '\"', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
+        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', '--cyclePortalPW ', '\"', parameters('cyclePortalPW'), '\"', ' --cyclePortalAccount ', '\"', parameters('cyclePortalAccount'), '\"', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cycleserver",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
