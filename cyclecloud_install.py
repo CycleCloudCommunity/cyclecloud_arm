@@ -188,7 +188,7 @@ def modify_cs_config():
                     new_config.write('webServerRedirectHttp=true')
                 elif 'webServerKeystorePass=' in line:
                     new_config.write('webServerKeystorePass=' + randomPW)
-                elif 'webServerKeystorePass=' in line:
+                elif 'webServerJvmOptions=' in line:
                     new_config.write(
                         'webServerJvmOptions=-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true')
                 else:
