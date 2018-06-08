@@ -49,17 +49,17 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     storage_account_name = 'cyclecloud'  + random_suffix 
 
     azure_data = {
-        "Name": "azure",
-        "DefaultAccount": True,
-        "Provider": "azure",
         "AzureEnvironment": azure_region,
-        "AzureRMSubscriptionId": subscription_id,
-        "AzureRMTenantId": tenant_id,
         "AzureRMApplicationId": application_id,
         "AzureRMApplicationSecret": application_secret,
-        "ProviderId": subscription_id,
-        "AzureDefaultRegion": location,
+        "AzureRMSubscriptionId": subscription_id,
+        "AzureRMTenantId": tenant_id,
         "AzureResourceGroup": resource_group,
+        "DefaultAccount": True,
+        "Location": location,
+        "Name": "azure",
+        "Provider": "azure",
+        "ProviderId": subscription_id,
         "RMStorageAccount": storage_account_name,
         "RMStorageContainer": "cyclecloud"
     }
