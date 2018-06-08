@@ -33,7 +33,7 @@ def _catch_sys_error(cmd_list):
         raise
 
 
-def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_portal_account, cycle_portal_pw, cyclecloud_admin_pw, admin_user):
+def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_portal_account, cycle_portal_pw, cyclecloud_admin_pw, admin_user, azure_region):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
     metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
     metadata_req = Request(metadata_url, headers={"Metadata" : True})
@@ -52,6 +52,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
         "Name": "azure",
         "DefaultAccount": True,
         "Provider": "azure",
+        "AzureEnvironment": azure_region,
         "AzureRMSubscriptionId": subscription_id,
         "AzureRMTenantId": tenant_id,
         "AzureRMApplicationId": application_id,
@@ -75,7 +76,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     }
     authenticated_user = {
         "AdType": "AuthenticatedUser",
-        "Name": "admin",
+        "Name": admin_user,
         "RawPassword": cyclecloud_admin_pw,
         "Superuser": True
     }
@@ -123,7 +124,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     sleep(5)
 
     print "Initializing cylcecloud CLI"
-    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost:8443", "--verify-ssl=false", "--username=admin", password_flag])    
+    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost:8443", "--verify-ssl=false", "--username=" + admin_user, password_flag])    
 
     homedir = path.expanduser("~")
     cycle_config = homedir + "/.cycle/config.ini"
@@ -301,6 +302,10 @@ def main():
                       dest="licenseURL",
                       help="Download URL for trial license")
 
+    parser.add_argument("--azureRegion",
+                      dest="azureRegion",
+                      help="Azure Region [china|germany|public|usgov]")
+
     parser.add_argument("--tenantId",
                       dest="tenantId",
                       help="Tenant ID of the Azure subscription")
@@ -339,7 +344,7 @@ def main():
     modify_cs_config()
     cc_license(args.licenseURL)
     start_cc()
-    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser)
+    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser, args.azureRegion)
 
     clean_up()
 

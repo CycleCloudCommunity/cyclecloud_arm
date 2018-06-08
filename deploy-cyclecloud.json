@@ -55,13 +55,21 @@
             },
             "type": "securestring"
         },
+        "azureRegion": {
+            "maxLength": 36,
+            "metadata": {
+                "description": "Azure region to use. Options are: china, germany, public, or usgov"
+            },
+            "defaultValue": "public",
+            "type": "string"
+        },
         "cycleCloudVersion": {
             "maxLength": 32,
             "metadata": {
                 "description": "CycleCloud Software Version to install"
             },
             "defaultValue": "7.3.0",
-            "type": "securestring"
+            "type": "string"
         },
         "cycleDownloadURL": {
             "maxLength": 256,
@@ -314,7 +322,7 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
+        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cycleserver",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
