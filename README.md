@@ -36,11 +36,6 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
         $ az account list -o table
 ```
 
-4. The installation and license URLs for CycleCloud (Request this from your Microsoft or Cycle representative)
-
-5. [Optional] A login into the Cycle portal - used for checking out site specific licenses
-
-
 ## Using the templates
 
 * Clone the repo 
@@ -62,10 +57,6 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 
 1. Edit `params-cyclecloud.json`, updating these parameters: 
 
-* `cycleDownloadURL`: The download URL for the CycleCloud installation files. Get this from your Microsoft or Cycle rep.
-* `cyclePortalAccount`: The email address registered with a [Cycle Portal](https://portal.cyclecomputing.com) account 
-* `cyclePortalPW`: The password for the Cycle Portal account above.
-* `cycleLicenseURL`: The URL to a temporary license for CycleCloud. Get this from your Microsoft or Cycle rep.
 * `rsaPublicKey`: The public key staged into the Cycle and Jumpbox VMs
 * The follwing attributes from the service principal: `applicationSecret`, `tenantId`, `applicationId`
 *  `cyclecloudAdminPW`: Specifiy a password for the `admin` user for the Cyclecloud application server. The password needs to meet the following specifications: 
@@ -76,7 +67,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
         - Contains a number
         - Contains a special character: @ # $ % ^ & * - _ ! + = [ ] { } | \ : ' , . ? ` ~ " ( ) ;
 
-2. Deploy the jumpbox and CycleCloud server:
+2. Deploy the CycleCloud server:
 
         $ az group deployment create --name "cyclecloud_deployment" --resource-group "{RESOURCE-GROUP}" --template-file deploy-cyclecloud.json --parameters params-cyclecloud.json
 
@@ -89,7 +80,7 @@ _You could also reach the webserver through the VM's public IP address:_
 
         az vm list-ip-addresses -o table -g ${RESOURCE-GROUP} 
 
-* Login to the webserver using the `admin` user, and the `cyclecloudAdminPW` password defined in the `params-cyclecloud.json` parameters file.
+* Login to the webserver using the `cycleadmin` user, and the `cyclecloudAdminPW` password defined in the `params-cyclecloud.json` parameters file.
 * 
 
 
