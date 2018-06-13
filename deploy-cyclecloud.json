@@ -68,7 +68,7 @@
             "metadata": {
                 "description": "CycleCloud Software Version to install"
             },
-            "defaultValue": "7.3.1",
+            "defaultValue": "latest",
             "type": "string"
         },
         "cycleDownloadURL": {
