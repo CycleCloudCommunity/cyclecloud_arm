@@ -265,7 +265,7 @@ def download_install_cc(download_url, version):
     # Downloading and installing pip, then using that to install the CLIs 
     # from source.
     print "Unzip and install CLI"
-    _catch_sys_error(["unzip", "cycle_server/cli/cyclecloud-cli.zip"]) 
+    _catch_sys_error(["unzip", "cycle_server/tools/cyclecloud-cli.zip"]) 
     for cli_install_dir in listdir("."):
         if path.isdir(cli_install_dir) and re.match("cyclecloud-cli-installer", cli_install_dir):
             print "Found CLI install DIR %s" % cli_install_dir
