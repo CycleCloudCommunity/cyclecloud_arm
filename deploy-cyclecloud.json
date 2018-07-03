@@ -273,7 +273,7 @@
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
-                            "fileUris": ["https://raw.githubusercontent.com/CycleCloudCommunity/cyclecloud_arm/azure-release/cyclecloud_install.py"]
+                            "fileUris": ["https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease/latest/cyclecloud_install.py"]
                         },
                         "type": "CustomScript",
                         "typeHandlerVersion": "2.0"
