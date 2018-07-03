@@ -18,6 +18,7 @@ from time import sleep
 tmpdir = mkdtemp()
 print "Creating temp directory " + tmpdir + " for installing CycleCloud"
 cycle_root = "/opt/cycle_server"
+cs_cmd = cycle_root + "/cycle_server"
 
 def clean_up():
     rmtree(tmpdir)    
@@ -150,32 +151,23 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
 
 
 
-def start_cc():
+def start_cc(action):
     print "Starting CycleCloud server"
-    cs_cmd = cycle_root + "/cycle_server"
-    _catch_sys_error([cs_cmd, "start"])
+    _catch_sys_error([cs_cmd, action])
     _catch_sys_error([cs_cmd, "await_startup"])
     _catch_sys_error([cs_cmd, "status"])
 
+
+def redirectPorts():
     # use iptables to foward 80 and 443 to 8080 and 8443 respectively
     _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "80", "-j", "REDIRECT", "--to-port", "8080"])
     _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "443", "-j", "REDIRECT", "--to-port", "8443"])
-
-def _sslCert(randomPW):
-    print "Generating self-signed SSL cert"
-    _catch_sys_error(["/bin/keytool", "-genkey", "-alias", "CycleServer", "-keypass", randomPW, "-keystore", cycle_root + "/.keystore", "-storepass", randomPW, "-keyalg", "RSA", "-noprompt", "-dname", "CN=cycleserver.azure.com,OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown"])
-    _catch_sys_error(["chown", "cycle_server.", cycle_root+"/.keystore"])
-    _catch_sys_error(["chmod", "600", cycle_root+"/.keystore" ])
 
 
 def modify_cs_config():
     print "Editing CycleCloud server system properties file"
     # modify the CS config files
     cs_config_file = cycle_root + "/config/cycle_server.properties"
-
-    randomPW = ''.join(SystemRandom().choice(ascii_letters + digits) for _ in range(16))
-    # generate a self-signed cert
-    _sslCert(randomPW)
 
     fh, tmp_cs_config_file = mkstemp()
     with fdopen(fh,'w') as new_config:
@@ -187,11 +179,6 @@ def modify_cs_config():
                     new_config.write('webServerEnableHttps=true')
                 elif 'webServerRedirectHttp=' in line:
                     new_config.write('webServerRedirectHttp=true')
-                elif 'webServerKeystorePass=' in line:
-                    new_config.write('webServerKeystorePass=' + randomPW)
-                elif 'webServerJvmOptions=' in line:
-                    new_config.write(
-                        'webServerJvmOptions=-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true')
                 else:
                     new_config.write(line)
 
@@ -276,12 +263,22 @@ def download_install_cc(download_url, version):
             _catch_sys_error(["pip", "install", "pogo-sdist.tar.gz"]) 
 
     chdir(tmpdir)
-    _catch_sys_error(["cycle_server/install.sh", "--nostart"])
+    _catch_sys_error(["cycle_server/install.sh"])
+    _catch_sys_error([cs_cmd, "await_startup"])
+    _catch_sys_error([cs_cmd, "status"])
+
 
 
 def install_pre_req():
     print "Installing pre-requisites for CycleCloud server"
     _catch_sys_error(["yum", "install", "-y", "java-1.8.0-openjdk-headless"])
+
+    # not strictly needed, but it's useful to have the AZ CLI 
+    # Taken from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-yum?view=azure-cli-latest
+    _catch_sys_error(["rpm", "--import", "https://packages.microsoft.com/keys/microsoft.asc"])
+    _catch_sys_error(["sh", "-c", 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'])
+    _catch_sys_error(["yum", "install", "-y", "azure-cli"])
+
 
 def main():
     
@@ -343,7 +340,8 @@ def main():
     generate_ssh_key(args.adminUser)
     modify_cs_config()
     cc_license(args.licenseURL)
-    start_cc()
+    start_cc("restart")
+    redirectPorts()
     account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser, args.azureRegion)
 
     clean_up()
