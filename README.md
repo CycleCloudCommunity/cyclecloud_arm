@@ -1,6 +1,13 @@
 # CycleCloud ARM 
 Deploying Azure CycleCloud into a subscription using an Azure Resource Manager template
 
+# Quick Start:
+### Deploy on Azure CycleCloud
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fcyclecloud_community%2Fcyclecloud_arm%2Fazure-release%2Fdeploy-cyclecloud.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png" />
+</a>
+
 ## Introduction
 - This repo contains an ARM template for deploying Azure CycleCloud.
 - There are two ARM templates in here: 
