@@ -4,8 +4,8 @@ import argparse
 import tarfile
 import json
 import re
-from random import SystemRandom
-from string import ascii_letters, ascii_lowercase, digits
+import random
+from string import ascii_letters, ascii_uppercase, ascii_lowercase, digits
 from subprocess import CalledProcessError, check_output 
 from os import path, listdir, makedirs, chdir, fdopen, remove
 from urllib2 import urlopen, Request
@@ -23,6 +23,7 @@ cs_cmd = cycle_root + "/cycle_server"
 def clean_up():
     rmtree(tmpdir)    
 
+
 def _catch_sys_error(cmd_list):
     try:
         output = check_output(cmd_list)
@@ -34,7 +35,7 @@ def _catch_sys_error(cmd_list):
         raise
 
 
-def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_portal_account, cycle_portal_pw, cyclecloud_admin_pw, admin_user, azure_region):
+def account_and_cli_setup(tenant_id, application_id, application_secret, admin_user, azure_region, accept_terms):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
     metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
     metadata_req = Request(metadata_url, headers={"Metadata" : True})
@@ -45,10 +46,15 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     location = vm_metadata["compute"]["location"]
     resource_group = vm_metadata["compute"]["resourceGroupName"]
 
-    random_suffix = ''.join(SystemRandom().choice(ascii_lowercase) for _ in range(14))
+    random_suffix = ''.join(random.SystemRandom().choice(ascii_lowercase) for _ in range(14))
+
+    random_pw_chars = ( [random.choice(ascii_lowercase) for _ in range(20)] + 
+                        [random.choice(ascii_uppercase) for _ in range(20)] + 
+                        [random.choice(digits) for _ in range(10)] )
+    random.shuffle(random_pw_chars)
+    cyclecloud_admin_pw = ''.join(random_pw_chars) 
 
     storage_account_name = 'cyclecloud'  + random_suffix 
-
     azure_data = {
         "AzureEnvironment": azure_region,
         "AzureRMApplicationId": application_id,
@@ -65,11 +71,6 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
         "RMStorageContainer": "cyclecloud"
     }
 
-    app_setting_data = {
-        "AdType": "Application.Setting",
-        "Name": "cycleserver.sendAnonymizedData",
-        "Value": True
-    }
     app_setting_installation = {
         "AdType": "Application.Setting",
         "Name": "cycleserver.installation.complete",
@@ -77,36 +78,13 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     }
     authenticated_user = {
         "AdType": "AuthenticatedUser",
-        "Name": admin_user,
+        "Name": 'root',
         "RawPassword": cyclecloud_admin_pw,
         "Superuser": True
     }
-    site_name = {
-        "AdType": "Application.Setting",
-        "Name": "site_name",
-        "Value": resource_group,
-        "Category": "Support" 
-    }
-    portal_account = {
-        "AdType": "Application.Setting",
-        "Description": "The account login for this installation",
-        "Value": cycle_portal_account,
-        "Name": "support.account.login"
-    }
-    portal_login = {
-        "AdType": "Application.Setting",
-        "Description": "The account login for this installation",
-        "Value": cycle_portal_pw,
-        "Name": "support.account.password"
-    }
-
     account_data = [
-        app_setting_data,
-        app_setting_installation,
-        authenticated_user,        
-        site_name,
-        portal_account,
-        portal_login 
+        authenticated_user,
+        app_setting_installation
     ]
 
     account_data_file = tmpdir + "/account_data.json"
@@ -125,7 +103,7 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     sleep(5)
 
     print "Initializing cylcecloud CLI"
-    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost:8443", "--verify-ssl=false", "--username=" + admin_user, password_flag])    
+    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch", "--url=https://localhost:8443", "--verify-ssl=false", "--username=root", password_flag])    
 
     homedir = path.expanduser("~")
     cycle_config = homedir + "/.cycle/config.ini"
@@ -144,15 +122,33 @@ def account_and_cli_setup(tenant_id, application_id, application_secret, cycle_p
     # create the cloud provide account
     _catch_sys_error(["/usr/bin/cyclecloud", "account", "create", "-f", azure_data_file])
 
-    # stash the cyclecloud configs into the admin_user account as well
-    copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle" )
-    _catch_sys_error(["chown", "-R", admin_user , "/home/" + admin_user + "/.cycle"])
+    # create a pogo.ini for the admin_user so that cyclecloud project upload works
+    admin_user_cycledir = "/home/" + admin_user + "/.cycle"
+    if not path.isdir(admin_user_cycledir):
+        makedirs(admin_user_cycledir, mode=755) 
 
+    pogo_config = admin_user_cycledir + "/pogo.ini"
 
+    with open(pogo_config, "w") as pogo_config:
+        pogo_config.write("[pogo azure-storage]\n")
+        pogo_config.write("type = az\n")
+        pogo_config.write("subscription_id = " + subscription_id+ "\n")
+        pogo_config.write("tenant_id = " + tenant_id + "\n")
+        pogo_config.write("application_id = " + application_id + "\n")
+        pogo_config.write("application_secret = " + application_secret + "\n")
+        pogo_config.write("matches = az://"+ storage_account_name + "/cyclecloud" + "\n")         
+
+    _catch_sys_error(["chown", "-R", admin_user , admin_user_cycledir])
+
+    if not accept_terms:
+        # reset the installation status so the splash screen re-appears
+        print "Resetting installation"
+        sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
+        _catch_sys_error(["/opt/cycle_server/cycle_server", "execute", sql_statement])
 
 
 def start_cc(action):
-    print "Starting CycleCloud server"
+    print "CycleCloud server %s" % action
     _catch_sys_error([cs_cmd, action])
     _catch_sys_error([cs_cmd, "await_startup"])
     _catch_sys_error([cs_cmd, "status"])
@@ -160,6 +156,7 @@ def start_cc(action):
 
 def redirectPorts():
     # use iptables to foward 80 and 443 to 8080 and 8443 respectively
+    print "Using iptables to route 80 and 443"
     _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "80", "-j", "REDIRECT", "--to-port", "8080"])
     _catch_sys_error(["iptables", "-A", "PREROUTING", "-t", "nat", "-i", "eth0", "-p", "tcp", "--dport", "443", "-j", "REDIRECT", "--to-port", "8443"])
 
@@ -225,14 +222,6 @@ def generate_ssh_key(admin_user):
         _catch_sys_error(["chmod", "700", adminuser_sshdir])
 
 
-def cc_license(license_url):
-    # get a license
-    license_file = cycle_root + '/license.dat'
-    print "Fetching temporary license from " + license_url
-    urlretrieve(license_url, license_file)
-    _catch_sys_error(["chown", "cycle_server.", license_file])
-
-
 def download_install_cc(download_url, version):    
     chdir(tmpdir)
     cyclecloud_rpm = "cyclecloud-" + version + ".x86_64.rpm"
@@ -263,7 +252,10 @@ def download_install_cc(download_url, version):
             _catch_sys_error(["pip", "install", "pogo-sdist.tar.gz"]) 
 
     chdir(tmpdir)
+
+    print "Installing Azure CycleCloud server"
     _catch_sys_error(["cycle_server/install.sh"])
+    print "Waiting for server start"
     _catch_sys_error([cs_cmd, "await_startup"])
     _catch_sys_error([cs_cmd, "status"])
 
@@ -295,10 +287,6 @@ def main():
                     #   required=True,
                       help="Download URL for the Cycle install")
 
-    parser.add_argument("--licenseURL",
-                      dest="licenseURL",
-                      help="Download URL for trial license")
-
     parser.add_argument("--azureRegion",
                       dest="azureRegion",
                       help="Azure Region [china|germany|public|usgov]")
@@ -315,20 +303,13 @@ def main():
                       dest="applicationSecret",
                       help="Application Secret of the Service Principal")
 
-    parser.add_argument("--cyclePortalAccount",
-                      dest="cyclePortalAccount",
-                      help="Email address of the account in the CycleCloud portal for checking out licenses")
-
-    parser.add_argument("--cyclePortalPW",
-                      dest="cyclePortalPW",
-                      help="Password for the ccount in the CycleCloud portal")
-
-    parser.add_argument("--cyclecloudAdminPW",
-                      dest="cyclecloudAdminPW",
-                      help="Admin user password for the cyclecloud application server")
-
     parser.add_argument("--adminUser",
                       dest="adminUser",
+                      help="The local admin user for the CycleCloud VM")
+
+    parser.add_argument("--acceptTerms",
+                      dest="acceptTerms",
+                      default=False,
                       help="The local admin user for the CycleCloud VM")
 
     args = parser.parse_args()
@@ -339,10 +320,9 @@ def main():
     download_install_cc(args.downloadURL, args.cycleCloudVersion) 
     generate_ssh_key(args.adminUser)
     modify_cs_config()
-    cc_license(args.licenseURL)
     start_cc("restart")
     redirectPorts()
-    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.cyclePortalAccount, args.cyclePortalPW, args.cyclecloudAdminPW, args.adminUser, args.azureRegion)
+    account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.adminUser, args.azureRegion, args.acceptTerms)
 
     clean_up()
 

@@ -19,7 +19,7 @@
             "defaultValue": "Standard_D3_v2",
             "type": "string"
         },
-        "cycle_subnet": {
+        "cycleSubnet": {
             "maxLength": 36,
             "metadata": {
                 "description": "Name of the subnet for the CycleCloud Server"
@@ -27,14 +27,7 @@
 
             "type": "string"
         },
-        "cyclecloudAdminPW": {
-            "maxLength": 128,
-            "metadata": {
-                "description": "Admin password to use for the CycleCloud application"
-            },
-            "type": "securestring"
-        },
-        "applicationSecret": {
+       "applicationSecret": {
             "maxLength": 128,
             "metadata": {
                 "description": "Service Principal Application Secret"
@@ -79,15 +72,7 @@
             "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
             "type": "securestring"
         },
-        "cycleLicenseURL": {
-            "maxLength": 256,
-            "metadata": {
-                "description": "SAS key to Cycle License blob"
-            },
-            "defaultValue": "https://cyclecloudarm.blob.core.windows.net/cyclecloudlicense/license.dat?se=2018-10-31&sp=r&sv=2017-04-17&sr=b&sig=k6m2%2BLQj0tY1EIxosJJWt2VdIfjyPwfR/keFOwf0kIw%3D",
-            "type": "securestring"
-        },
-        "adminUser": {
+       "adminUser": {
             "maxLength": 32,
             "type": "string",
             "defaultValue": "cycleadmin",
@@ -157,21 +142,6 @@
                 "destinationAddressPrefix": "*",
                 "access": "Allow",
                 "priority": 3000,
-                "direction": "Inbound",
-                "sourceAddressPrefixes": [],
-                "destinationAddressPrefixes": []
-                }
-            },
-            {
-                "name": "DenyAllVnetInbound",
-                "properties": {
-                "protocol": "*",
-                "sourcePortRange": "*",
-                "destinationPortRange": "*",
-                "sourceAddressPrefix": "*",
-                "destinationAddressPrefix": "*",
-                "access": "Deny",
-                "priority": 4096,
                 "direction": "Inbound",
                 "sourceAddressPrefixes": [],
                 "destinationAddressPrefixes": []
@@ -273,7 +243,7 @@
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
-                            "fileUris": ["https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease/latest/cyclecloud_install.py"]
+                            "fileUris": ["[variables('installScriptURL')]"]
                         },
                         "type": "CustomScript",
                         "typeHandlerVersion": "2.0"
@@ -306,7 +276,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('cycleIPName'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('cycle_subnet'))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('cycleSubnet'))]"
                             }
                         }
                     }
@@ -322,11 +292,12 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --licenseURL ', '\"', parameters('cycleLicenseURL'),  '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --cyclecloudAdminPW ', '''', parameters('cyclecloudAdminPW'), '''',  ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
+        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', parameters('cycleDownloadURL'), '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cycleserver",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
+        "installScriptURL": "[concat(parameters('cycleDownloadURL'), '/', parameters('cycleCloudVersion'), '/cyclecloud_install.py')]",
         "namingInfix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
         "resourceLocation": "[resourceGroup().location]"

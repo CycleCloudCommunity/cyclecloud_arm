@@ -3,14 +3,14 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vnetName": { "value": "cyclevnet" },
-    "cycle_subnet": { "value": "cycle"},
+    "cycleSubnet": { "value": "cycle"},
     "cyclevmSize" : {"value": "Standard_D3_v2"},
     "cyclevmStorage": {"value": "Standard_LRS"},
+    "adminUser": { "value": "cycleadmin"},
     "rsaPublicKey": { "value": ""},
     "applicationSecret": {"value": ""},
     "tenantId": {"value": ""},
-    "applicationId": {"value": ""},
-    "cyclecloudAdminPW" : {"value": ""}
+    "applicationId": {"value": ""}
   }
 }
 
