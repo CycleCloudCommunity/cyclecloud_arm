@@ -309,7 +309,7 @@ def main():
 
     parser.add_argument("--acceptTerms",
                       dest="acceptTerms",
-                      default=False,
+                      action="store_true",
                       help="The local admin user for the CycleCloud VM")
 
     args = parser.parse_args()

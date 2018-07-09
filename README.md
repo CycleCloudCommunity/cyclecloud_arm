@@ -59,13 +59,6 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 
 * `rsaPublicKey`: The public key staged into the Cycle and Jumpbox VMs
 * The follwing attributes from the service principal: `applicationSecret`, `tenantId`, `applicationId`
-*  `cyclecloudAdminPW`: Specifiy a password for the `admin` user for the Cyclecloud application server. The password needs to meet the following specifications: 
-
-        Between 3-8 characters and meeting three of the following four conditions:
-        - Contains an upper case character
-        - Contains a lower case character
-        - Contains a number
-        - Contains a special character: @ # $ % ^ & * - _ ! + = [ ] { } | \ : ' , . ? ` ~ " ( ) ;
 
 2. Deploy the CycleCloud server:
 
@@ -80,15 +73,14 @@ _You could also reach the webserver through the VM's public IP address:_
 
         az vm list-ip-addresses -o table -g ${RESOURCE-GROUP} 
 
-* Login to the webserver using the `cycleadmin` user, and the `cyclecloudAdminPW` password defined in the `params-cyclecloud.json` parameters file.
-* 
+* The first time you access the webserver, the Azure CycleCloud End User License Agreement will be displayed, and you will be prompted to accept it.
+* After that, you will be prompted to create an admin user for the application server. For consistency, it is recommended that you use `cycleadmin` as the username.
 
 
-
-## Using the CycleCloud CLI
-* The CycleCloud CLI is required for importing custom cluster templates, and is installed in the **cycleserver** VM. SSH access into this VM is not directly accessible -- you have to first SSH into the admin jumpbox to reach it.
-
-* In the Azure portal, retrieve the full DNS name of the CycleCloud server. You can then SSH on it with the **cycleadmin** user with the SSH key you provided. Once on the CycleCloud server, test the CycleCloud CLI
+## Initialize the CycleCloud CLI
+* The CycleCloud CLI is required for importing custom cluster templates and projects, and is installed in the **Azure CycleCLoud** VM. 
+* To use the CLI, SSH into the VM with the private key that matches the public key supplied in the parameter file. The SSH user is `cycleadmin` by default unless you modified that in the `params-cyclecloud.json` file. 
+* Once on the CycleCloud server, test the CycleCloud CLI
 
         $ cyclecloud locker list
 
