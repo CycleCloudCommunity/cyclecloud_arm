@@ -254,11 +254,7 @@ def download_install_cc(download_url, version):
     chdir(tmpdir)
 
     print "Installing Azure CycleCloud server"
-    _catch_sys_error(["cycle_server/install.sh"])
-    print "Waiting for server start"
-    _catch_sys_error([cs_cmd, "await_startup"])
-    _catch_sys_error([cs_cmd, "status"])
-
+    _catch_sys_error(["cycle_server/install.sh", "--nostart"])
 
 
 def install_pre_req():
@@ -320,7 +316,7 @@ def main():
     download_install_cc(args.downloadURL, args.cycleCloudVersion) 
     generate_ssh_key(args.adminUser)
     modify_cs_config()
-    start_cc("restart")
+    start_cc("start")
     redirectPorts()
     account_and_cli_setup(args.tenantId, args.applicationId, args.applicationSecret, args.adminUser, args.azureRegion, args.acceptTerms)
 
