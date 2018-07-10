@@ -12,22 +12,7 @@
         }
     },
     "parameters": {
-          "cyclevmStorage": {
-            "maxLength": 32,
-            "type": "string",
-            "defaultValue": "Standard_LRS",
-            "metadata": {
-              "description": "Type of storage for the Cycle VM: Premium_LRS or Standard_LRS"
-            }
-          },        
-        "cyclevmSize": {
-            "maxLength": 36,
-            "metadata": {
-                "description": "VM Size for the CycleCloud server"
-            },
-            "defaultValue": "Standard_D3_v2",
-            "type": "string"
-        },
+
        "applicationSecret": {
             "maxLength": 128,
             "metadata": {
@@ -63,19 +48,6 @@
             ],
             "type": "string"
         },
-        "cycleCloudVersion": {
-            "maxLength": 32,
-            "metadata": {
-                "description": "CycleCloud Software Version to install"
-            },
-            "defaultValue": "latest",
-            "allowedValues": [
-                "latest",
-                "7.4.0",
-                "7.3.1"
-            ],
-            "type": "string"
-        },
        "adminUser": {
             "maxLength": 32,
             "type": "string",
@@ -88,6 +60,35 @@
             "metadata": {
                 "description": "The RSA public key to access the VMs."
             },
+            "type": "string"
+        },
+        "cyclevmStorage": {
+            "maxLength": 32,
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Type of storage for the Cycle VM: Premium_LRS or Standard_LRS"
+            }
+        },
+        "cyclevmSize": {
+            "maxLength": 36,
+            "metadata": {
+                "description": "VM Size for the CycleCloud server"
+            },
+            "defaultValue": "Standard_D3_v2",
+            "type": "string"
+        },
+        "cycleCloudVersion": {
+            "maxLength": 32,
+            "metadata": {
+                "description": "CycleCloud Software Version to install"
+            },
+            "defaultValue": "latest",
+            "allowedValues": [
+                "latest",
+                "7.4.0",
+                "7.3.1"
+            ],
             "type": "string"
         },
         "vnetName": {
