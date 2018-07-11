@@ -12,27 +12,27 @@
         }
     },
     "parameters": {
-       "applicationSecret": {
-            "maxLength": 128,
+        "tenantId": {
+            "maxLength": 36,
             "metadata": {
-                "description": "Service Principal Application Secret"
+                "description": "Azure tenant ID"
             },
-            "type": "securestring"
+            "type": "string"
         },
         "applicationId": {
             "maxLength": 36,
             "metadata": {
                 "description": "Service Principal Application ID"
             },
-            "type": "securestring"
+            "type": "string"
         },
-        "tenantId": {
-            "maxLength": 36,
-            "metadata": {
-                "description": "Azure tenant ID"
-            },
-            "type": "securestring"
-        },
+        "applicationSecret": {
+             "maxLength": 128,
+             "metadata": {
+                 "description": "Service Principal Application Secret"
+             },
+             "type": "securestring"
+         },
         "rsaPublicKey": {
             "metadata": {
                 "description": "The RSA public key to access the VMs."
@@ -201,7 +201,7 @@
             "publicIPAllocationMethod": "Static",
             "idleTimeoutInMinutes": 4,
             "dnsSettings": {
-            "domainNameLabel": "[concat('cycleserver', variables('namingInfix'))]"
+            "domainNameLabel": "[concat('cyclecloud-', variables('namingInfix'))]"
             }
         },
         "dependsOn": []
@@ -213,6 +213,9 @@
             ],
             "location": "[variables('resourceLocation')]",
             "name": "[variables('cycleName')]",
+            "identity": {
+                "type": "systemAssigned"
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "[parameters('cyclevmSize')]"
@@ -334,13 +337,13 @@
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
         "cycleDownloadURL": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
         "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
-        "cycleName": "cycleserver",
+        "cycleName": "cyclecloud",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
         "cycleSubnet": "cycle",
         "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cycleCloudVersion'), '/cyclecloud_install.py')]",
-        "namingInfix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+        "namingInfix": "[toLower(take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
         "resourceLocation": "[resourceGroup().location]"
     }
