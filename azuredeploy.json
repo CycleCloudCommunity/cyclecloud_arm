@@ -85,6 +85,7 @@
             "defaultValue": "latest",
             "allowedValues": [
                 "latest",
+                "7.5.0",
                 "7.4.0",
                 "7.3.1"
             ],
@@ -282,7 +283,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[variables('cycleInstallCommand')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --adminUser ', '\"', parameters('adminUser'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
@@ -336,7 +337,6 @@
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
         "cycleDownloadURL": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
-        "cycleInstallCommand": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --adminUser ', '\"', parameters('adminUser'), '\"')]",
         "cycleName": "cyclecloud",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
