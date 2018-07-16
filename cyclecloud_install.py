@@ -36,7 +36,7 @@ def _catch_sys_error(cmd_list):
         raise
 
 
-def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_region, accept_terms):
+def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
 
     subscription_id = vm_metadata["compute"]["subscriptionId"]
@@ -54,7 +54,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
 
     storage_account_name = 'cyclecloud' + random_suffix
     azure_data = {
-        "AzureEnvironment": azure_region,
+        "AzureEnvironment": azure_cloud,
         "AzureRMApplicationId": application_id,
         "AzureRMApplicationSecret": application_secret,
         "AzureRMSubscriptionId": subscription_id,
@@ -287,8 +287,8 @@ def main():
                         #   required=True,
                         help="Download URL for the Cycle install")
 
-    parser.add_argument("--azureRegion",
-                        dest="azureRegion",
+    parser.add_argument("--azureSovereignCloud",
+                        dest="azureSovereignCloud",
                         help="Azure Region [china|germany|public|usgov]")
 
     parser.add_argument("--tenantId",
@@ -333,7 +333,7 @@ def main():
 
     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
-                          args.applicationSecret, args.username, args.azureRegion, args.acceptTerms)
+                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms)
 
     clean_up()
 

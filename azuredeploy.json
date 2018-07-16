@@ -15,60 +15,37 @@
         "tenantId": {
             "maxLength": 36,
             "metadata": {
-                "description": "Azure tenant ID"
+                "description": "Azure Tenant ID"
             },
             "type": "string"
         },
         "applicationId": {
             "maxLength": 36,
             "metadata": {
-                "description": "Service Principal Application ID"
+                "description": "The Application ID of the Service Principal"
             },
             "type": "string"
         },
         "applicationSecret": {
              "maxLength": 128,
              "metadata": {
-                 "description": "Service Principal Application Secret"
+                 "description": "The Application Secret of the Service Principal"
              },
              "type": "securestring"
          },
         "rsaPublicKey": {
             "metadata": {
-                "description": "The RSA public key to access the VMs."
+                "description": "The SSH public key to access the VMs."
             },
             "type": "string"
         },
         "username": {
              "maxLength": 32,
              "type": "string",
-             "defaultValue": "cycleadmin",
              "metadata": {
-               "description": "The SSH admin user for the VMs"
+               "description": "The username for logging into the VM"
              }
-         },        
-        "azureRegion": {
-            "maxLength": 36,
-            "metadata": {
-                "description": "Azure region to use. Options are: china, germany, public, or usgov"
-            },
-            "defaultValue": "public",
-            "allowedValues": [
-                "public",
-                "china",
-                "germany",
-                "usgov"
-            ],
-            "type": "string"
-        },
-        "cyclecloudVmStorage": {
-            "maxLength": 32,
-            "type": "string",
-            "defaultValue": "Standard_LRS",
-            "metadata": {
-                "description": "Type of storage for the Cycle VM: Premium_LRS or Standard_LRS"
-            }
-        },
+         },
         "cyclecloudVmSize": {
             "maxLength": 36,
             "metadata": {
@@ -76,6 +53,18 @@
             },
             "defaultValue": "Standard_D3_v2",
             "type": "string"
+        },                 
+        "cyclecloudVmStorage": {
+            "maxLength": 32,
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Premium_LRS"
+            ],            
+            "metadata": {
+                "description": "Type of storage for the CycleCloud VM: Premium_LRS or Standard_LRS"
+            }
         },
         "cyclecloudVersion": {
             "maxLength": 32,
@@ -88,6 +77,20 @@
                 "7.5.0",
                 "7.4.0",
                 "7.3.1"
+            ],
+            "type": "string"
+        },
+        "azureSovereignCloud": {
+            "maxLength": 36,
+            "metadata": {
+                "description": "Azure National Cloud to use."
+            },
+            "defaultValue": "public",
+            "allowedValues": [
+                "public",
+                "china",
+                "germany",
+                "usgov"
             ],
             "type": "string"
         },
@@ -283,7 +286,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
