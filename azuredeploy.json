@@ -39,6 +39,14 @@
             },
             "type": "string"
         },
+        "username": {
+             "maxLength": 32,
+             "type": "string",
+             "defaultValue": "cycleadmin",
+             "metadata": {
+               "description": "The SSH admin user for the VMs"
+             }
+         },        
         "azureRegion": {
             "maxLength": 36,
             "metadata": {
@@ -53,15 +61,7 @@
             ],
             "type": "string"
         },
-       "adminUser": {
-            "maxLength": 32,
-            "type": "string",
-            "defaultValue": "cycleadmin",
-            "metadata": {
-              "description": "The SSH admin user for the VMs"
-            }
-          },        
-        "cyclevmStorage": {
+        "cyclecloudVmStorage": {
             "maxLength": 32,
             "type": "string",
             "defaultValue": "Standard_LRS",
@@ -69,7 +69,7 @@
                 "description": "Type of storage for the Cycle VM: Premium_LRS or Standard_LRS"
             }
         },
-        "cyclevmSize": {
+        "cyclecloudVmSize": {
             "maxLength": 36,
             "metadata": {
                 "description": "VM Size for the CycleCloud server"
@@ -77,7 +77,7 @@
             "defaultValue": "Standard_D3_v2",
             "type": "string"
         },
-        "cycleCloudVersion": {
+        "cyclecloudVersion": {
             "maxLength": 32,
             "metadata": {
                 "description": "CycleCloud Software Version to install"
@@ -219,7 +219,7 @@
             },
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "[parameters('cyclevmSize')]"
+                    "vmSize": "[parameters('cyclecloudVmSize')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -229,7 +229,7 @@
                     ]
                 },
                 "osProfile": {
-                    "adminUsername": "[parameters('adminUser')]",
+                    "adminUsername": "[parameters('username')]",
                     "computerName": "[variables('cycleName')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
@@ -252,7 +252,7 @@
                             "diskSizeGB": 1023,
                             "lun": 0,
                             "managedDisk": {
-                                "storageAccountType": "[parameters('cyclevmStorage')]" 
+                                "storageAccountType": "[parameters('cyclecloudVmStorage')]" 
                             }
                         }
                     ],
@@ -266,7 +266,7 @@
                         "caching": "ReadWrite",
                         "createOption": "FromImage",
                         "managedDisk": {
-                            "storageAccountType": "[parameters('cyclevmStorage')]"
+                            "storageAccountType": "[parameters('cyclecloudVmStorage')]"
                         },
                         "osType": "Linux"
                     }
@@ -283,7 +283,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cycleCloudVersion ', '\"', parameters('cycleCloudVersion'),  '\"', ' --adminUser ', '\"', parameters('adminUser'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureRegion ', '\"', parameters('azureRegion'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
@@ -335,14 +335,14 @@
     ],
     "variables": {
         "computeApiVersion": "2017-03-30",
-        "authorizedKeyFile": "[concat('/home/', parameters('adminUser'),'/.ssh/authorized_keys')]",
+        "authorizedKeyFile": "[concat('/home/', parameters('username'),'/.ssh/authorized_keys')]",
         "cycleDownloadURL": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
         "cycleName": "cyclecloud",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
         "cycleSubnet": "cycle",
-        "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cycleCloudVersion'), '/cyclecloud_install.py')]",
+        "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cyclecloudVersion'), '/cyclecloud_install.py')]",
         "namingInfix": "[toLower(take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
         "resourceLocation": "[resourceGroup().location]"

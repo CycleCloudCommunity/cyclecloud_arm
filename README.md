@@ -1,27 +1,52 @@
 # CycleCloud ARM 
 Deploying Azure CycleCloud into a subscription using an Azure Resource Manager template
 
-# Quick Start: Deploy Azure CycleCloud
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
 
 ## Introduction
 - This repo contains an ARM template for deploying Azure CycleCloud.
-- There are two ARM templates in here: 
-    - `deploy-vnet.json` creates a VNET with 3 separate subnets:
+- The template deploys a VNET with 3 separate subnets:
         1. `cycle`: The subnet in which the CycleCloud server is started in.
         2. `compute`: A /22 subnet for the HPC clusters
         3. `user`: The subnet for creating login nodes.
-    - `deploy-cyclecloud.json` provisions and sets up the CycleCloud application server.
-- If you have a VNET (or subnets) that you want to deploy in, you can skip the the Vnet deployment. 
+- Provisions a VM in the `cycle` subnet and installs Azure CycleCloud on it.
+
+## Pre-requisites
+1. [Service Principal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal)
+ - Azure CycleCloud requires a service principal with contributor access to your Azure subscription. 
+
+- The simplest way to create one is using the [Azure CLI in Cloud Shell](https://shell.azure.com), which is already configured with your Azure subscription:
+
+        $ az ad sp create-for-rbac --name CycleCloudApp --years 1
+        {
+                "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "displayName": "CycleCloudApp",
+                "name": "http://CycleCloudApp",
+                "password": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+
+- Save the output -- you'll need the `appId`, `password` and `tenant`. 
+
+2. An SSH key 
+- An SSH key is needed to log into the CycleCloud VM and clusters
+- See [section below](#generating_ssh_key) for instructions on creating an SSH key if you do not have one.
+
+## Deploy using Azure Portal
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
+
+- 
 
 
 ## Pre-requisites
 1. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview?view=azure-cli-latest) installed and configured with an Azure subscription
 
+
+
 2. [Service principal in your Azure Active Directory](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest)
 
-- Using the AZ CLI:
+- The simplest way to create one is using the Azure CLI:
 ```
     $ az ad sp create-for-rbac --name CycleCloudApp --years 1
     {
@@ -32,15 +57,11 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
         "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     }
 ```
-- Save the output -- you'll need the appId, password and tenant id.
-
-3. Azure subscription ID. 
-- The easiest way to retrieve it:
-```
-        $ az account list -o table
-```
+- Save the output -- you'll need the `appId`, `password` and `tenant`.
 
 ## Using the templates
+
+Use the "Deploy to Azure" link above to launch an Azure CycleCloud installation directly in Azure
 
 * Clone the repo 
 
@@ -62,7 +83,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 1. Edit `params-cyclecloud.json`, updating these parameters: 
 
 * `rsaPublicKey`: The public key staged into the Cycle and Jumpbox VMs
-* The follwing attributes from the service principal: `applicationSecret`, `tenantId`, `applicationId`
+* The following attributes from the service principal: `applicationSecret`, `tenantId`, `applicationId`
 
 2. Deploy the CycleCloud server:
 

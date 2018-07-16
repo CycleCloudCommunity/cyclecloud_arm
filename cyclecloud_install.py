@@ -190,7 +190,7 @@ def modify_cs_config():
     _catch_sys_error(["chown", "-R", "cycle_server.", cycle_root])
 
 
-def generate_ssh_key(admin_user):
+def generate_ssh_key(username):
     print "Creating an SSH private key for VM access"
     homedir = path.expanduser("~")
     sshdir = homedir + "/.ssh"
@@ -215,16 +215,16 @@ def generate_ssh_key(admin_user):
         _catch_sys_error(["chmod", "700", cs_sshdir])
 
     # make the cyclecloud.pem available to the login user as well
-    adminuser_sshdir = "/home/" + admin_user + "/.ssh"
-    adminuser_sshkeyfile = adminuser_sshdir + "/cyclecloud.pem"
+    user_sshdir = "/home/" + username + "/.ssh"
+    user_sshkeyfile = user_sshdir + "/cyclecloud.pem"
 
-    if not path.isdir(adminuser_sshdir):
-        makedirs(adminuser_sshdir)
+    if not path.isdir(user_sshdir):
+        makedirs(user_sshdir)
 
-    if not path.isdir(adminuser_sshkeyfile):
-        copy2(sshkeyfile, adminuser_sshkeyfile)
-        _catch_sys_error(["chown", "-R", admin_user, adminuser_sshdir])
-        _catch_sys_error(["chmod", "700", adminuser_sshdir])
+    if not path.isdir(user_sshkeyfile):
+        copy2(sshkeyfile, user_sshkeyfile)
+        _catch_sys_error(["chown", "-R", admin_user, user_sshdir])
+        _catch_sys_error(["chmod", "700", user_sshdir])
 
 
 def download_install_cc(download_url, version):
@@ -303,8 +303,8 @@ def main():
                         dest="applicationSecret",
                         help="Application Secret of the Service Principal")
 
-    parser.add_argument("--adminUser",
-                        dest="adminUser",
+    parser.add_argument("--username",
+                        dest="username",
                         help="The local admin user for the CycleCloud VM")
 
     parser.add_argument("--hostname",
@@ -322,7 +322,7 @@ def main():
 
     install_pre_req()
     download_install_cc(args.downloadURL, args.cycleCloudVersion)
-    generate_ssh_key(args.adminUser)
+    generate_ssh_key(args.username)
     modify_cs_config()
     start_cc()
 
@@ -333,7 +333,7 @@ def main():
 
     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
-                          args.applicationSecret, args.adminUser, args.azureRegion, args.acceptTerms)
+                          args.applicationSecret, args.username, args.azureRegion, args.acceptTerms)
 
     clean_up()
 
