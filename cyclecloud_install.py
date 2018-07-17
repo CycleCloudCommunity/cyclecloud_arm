@@ -277,8 +277,8 @@ def main():
 
     parser = argparse.ArgumentParser(description="usage: %prog [options]")
 
-    parser.add_argument("--cycleCloudVersion",
-                        dest="cycleCloudVersion",
+    parser.add_argument("--cyclecloudVersion",
+                        dest="cyclecloudVersion",
                         #   required=True,
                         help="CycleCloud version to install")
 
@@ -321,7 +321,7 @@ def main():
     print("Debugging arguments: %s" % args)
 
     install_pre_req()
-    download_install_cc(args.downloadURL, args.cycleCloudVersion)
+    download_install_cc(args.downloadURL, args.cyclecloudVersion)
     generate_ssh_key(args.username)
     modify_cs_config()
     start_cc()
