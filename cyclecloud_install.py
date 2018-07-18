@@ -36,7 +36,7 @@ def _catch_sys_error(cmd_list):
         raise
 
 
-def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms):
+def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
 
     subscription_id = vm_metadata["compute"]["subscriptionId"]
@@ -46,11 +46,17 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
     random_suffix = ''.join(random.SystemRandom().choice(
         ascii_lowercase) for _ in range(14))
 
-    random_pw_chars = ([random.choice(ascii_lowercase) for _ in range(20)] +
-                       [random.choice(ascii_uppercase) for _ in range(20)] +
-                       [random.choice(digits) for _ in range(10)])
-    random.shuffle(random_pw_chars)
-    cyclecloud_admin_pw = ''.join(random_pw_chars)
+    cyclecloud_admin_pw = ""
+    
+    if password:
+        print 'Password specified, using it as the admin password'
+        cyclecloud_admin_pw = password
+    else:
+        random_pw_chars = ([random.choice(ascii_lowercase) for _ in range(20)] +
+                        [random.choice(ascii_uppercase) for _ in range(20)] +
+                        [random.choice(digits) for _ in range(10)])
+        random.shuffle(random_pw_chars)
+        cyclecloud_admin_pw = ''.join(random_pw_chars)
 
     storage_account_name = 'cyclecloud' + random_suffix
     azure_data = {
@@ -84,6 +90,16 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         authenticated_user,
         app_setting_installation
     ]
+
+    if accept_terms:
+        # Terms accepted, auto-create login user account as well
+        login_user = {
+            "AdType": "AuthenticatedUser",
+            "Name": admin_user,
+            "RawPassword": cyclecloud_admin_pw,
+            "Superuser": True
+        }
+        account_data.append(login_user)
 
     account_data_file = tmpdir + "/account_data.json"
     azure_data_file = tmpdir + "/azure_data.json"
@@ -125,7 +141,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
     # create a pogo.ini for the admin_user so that cyclecloud project upload works
     admin_user_cycledir = "/home/" + admin_user + "/.cycle"
     if not path.isdir(admin_user_cycledir):
-        makedirs(admin_user_cycledir, mode=755)
+        makedirs(admin_user_cycledir, mode=700)
 
     pogo_config = admin_user_cycledir + "/pogo.ini"
 
@@ -140,8 +156,14 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
                           storage_account_name + "/cyclecloud" + "\n")
 
     _catch_sys_error(["chown", "-R", admin_user, admin_user_cycledir])
+    _catch_sys_error(["chmod", "-R", "700", admin_user_cycledir])
 
-    if not accept_terms:
+    if accept_terms:
+        # stash the cyclecloud configs into the admin_user account as well
+        copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle")
+        _catch_sys_error(["chown", "-R", admin_user,
+                        "/home/" + admin_user + "/.cycle"])
+    else:
         # reset the installation status so the splash screen re-appears
         print "Resetting installation"
         sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
@@ -223,13 +245,12 @@ def generate_ssh_key(username):
 
     if not path.isdir(user_sshkeyfile):
         copy2(sshkeyfile, user_sshkeyfile)
-        _catch_sys_error(["chown", "-R", admin_user, user_sshdir])
+        _catch_sys_error(["chown", "-R", username, user_sshdir])
         _catch_sys_error(["chmod", "700", user_sshdir])
 
 
 def download_install_cc(download_url, version):
     chdir(tmpdir)
-    cyclecloud_rpm = "cyclecloud-" + version + ".x86_64.rpm"
     cyclecloud_tar = "cyclecloud-" + version + ".linux64.tar.gz"
     cc_url = download_url + "/" + version + "/" + cyclecloud_tar
 
@@ -314,7 +335,11 @@ def main():
     parser.add_argument("--acceptTerms",
                         dest="acceptTerms",
                         action="store_true",
-                        help="The local admin user for the CycleCloud VM")
+                        help="Accept Cyclecloud terms and do a silent install")
+
+    parser.add_argument("--password",
+                        dest="password",
+                        help="The password for the CycleCloud UI user")
 
     args = parser.parse_args()
 
@@ -333,7 +358,7 @@ def main():
 
     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
-                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms)
+                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password)
 
     clean_up()
 
