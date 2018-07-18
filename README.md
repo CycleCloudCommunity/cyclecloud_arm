@@ -6,17 +6,18 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 ## Introduction
 - This repo contains an ARM template for deploying Azure CycleCloud.
 - The template deploys a VNET with 3 separate subnets:
-        1. `cycle`: The subnet in which the CycleCloud server is started in.
-        2. `compute`: A /22 subnet for the HPC clusters
-        3. `user`: The subnet for creating login nodes.
+
+  1. `cycle`: The subnet in which the CycleCloud server is started in.
+  2. `compute`: A /22 subnet for the HPC clusters
+  3. `user`: The subnet for creating login nodes.
 - Provisions a VM in the `cycle` subnet and installs Azure CycleCloud on it.
 
 ## Pre-requisites
-1. [Service Principal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal)
- - Azure CycleCloud requires a service principal with contributor access to your Azure subscription. 
+1. Service Principal
+    - Azure CycleCloud requires a service principal with contributor access to your Azure subscription. 
 
-- The simplest way to create one is using the [Azure CLI in Cloud Shell](https://shell.azure.com), which is already configured with your Azure subscription:
-
+    - The simplest way to create one is using the [Azure CLI in Cloud Shell](https://shell.azure.com), which is already configured with your Azure subscription:
+        ```
         $ az ad sp create-for-rbac --name CycleCloudApp --years 1
         {
                 "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -25,39 +26,32 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
                 "password": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
                 "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
         }
+        ```
+        - Save the output -- you'll need the `appId`, `password` and `tenant`. 
 
-- Save the output -- you'll need the `appId`, `password` and `tenant`. 
+    - Alternatively, follow these [instructions to create a Service Principal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) 
+        -  In this case, the authentication key is the `password`
 
-2. An SSH key 
-- An SSH key is needed to log into the CycleCloud VM and clusters
-- See [section below](#generating_ssh_key) for instructions on creating an SSH key if you do not have one.
+2. An SSH key
+
+    - An SSH key is needed to log into the CycleCloud VM and clusters
+    - See [section below](#generating_ssh_key) for instructions on creating an SSH key if you do not have one.
 
 ## Deploy using Azure Portal
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
 
-- 
+- Click on the button above to deploy the Azure Cyclecloud into your subscription. 
+- Required Fields:
+
+    - `Tenant Id`: The Tenant ID as listed in the service principal
+    - `Application Id`: The Application ID of the service principal
+    - `Application Secret`: The Application Password or Authentication Key of the service principal
+    - `SSH Public Key`: The public key used to log into the CycleCloud VM
+    - `Username`: The username for the CycleCloud VM. It is advised to use your username in the Azure portal, sans `@domain.com`
 
 
-## Pre-requisites
-1. [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview?view=azure-cli-latest) installed and configured with an Azure subscription
 
-
-
-2. [Service principal in your Azure Active Directory](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest)
-
-- The simplest way to create one is using the Azure CLI:
-```
-    $ az ad sp create-for-rbac --name CycleCloudApp --years 1
-    {
-        "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-        "displayName": "CycleCloudApp",
-        "name": "http://CycleCloudApp",
-        "password": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-        "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-    }
-```
-- Save the output -- you'll need the `appId`, `password` and `tenant`.
 
 ## Using the templates
 
