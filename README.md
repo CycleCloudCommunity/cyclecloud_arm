@@ -1,8 +1,6 @@
 # CycleCloud ARM 
 Deploying Azure CycleCloud into a subscription using an Azure Resource Manager template
 
-
-
 ## Introduction
 - This repo contains an ARM template for deploying Azure CycleCloud.
 - The template deploys a VNET with 3 separate subnets:
@@ -37,7 +35,8 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
     - An SSH key is needed to log into the CycleCloud VM and clusters
     - See [section below](#generating_ssh_key) for instructions on creating an SSH key if you do not have one.
 
-## Deploy using Azure Portal
+## Deploying Azure CycleCloud
+### From the Azure Portal
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
 
@@ -48,12 +47,10 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
     - `Application Id`: The Application ID of the service principal
     - `Application Secret`: The Application Password or Authentication Key of the service principal
     - `SSH Public Key`: The public key used to log into the CycleCloud VM
-    - `Username`: The username for the CycleCloud VM. It is advised to use your username in the Azure portal, sans `@domain.com`
+    - `Username`: The username for the CycleCloud VM. We suggest you use your username in the Azure portal, sans domain `@domain.com`
 
 
-
-
-## Using the templates
+### Using the AZ CLI
 
 Use the "Deploy to Azure" link above to launch an Azure CycleCloud installation directly in Azure
 
@@ -61,54 +58,39 @@ Use the "Deploy to Azure" link above to launch an Azure CycleCloud installation 
 
         $ git clone https://github.com/CycleCloudCommunity/cyclecloud_arm.git
 
-### Create a Resource Group and VNET
-* *_If you already have a VNET in a Resource Group that you would like to deploy CycleCloud in, skip this step and use the VNET and resource group in the next section_*
+* Edit and update the parameters in `params.azuredeploy.json`  
 
-* Create a resource group in the region of your choice:
+* Create a Resource Group, specifying a group name and location:
 
-        $ az group create --name "{RESOURCE-GROUP}" --location "{REGION}"
+        $ az group create --name AzureCycleCloud --location ${LOCATION}
 
-* Build the Virtual Network and subnets. By default the vnet is named **cyclevnet** . 
+* Deploy the template:
 
-        $ az group deployment create --name "vnet_deployment" --resource-group "{RESOURCE-GROUP}" --template-file deploy-vnet.json --parameters params-vnet.json
+        $ az group deployment create --name "azure_cyclecloud_deployment" --resource-group AzureCycleCloud --template-file azuredeploy.json --parameters params.azuredeploy.json
 
-### Deploy CycleCloud
-
-1. Edit `params-cyclecloud.json`, updating these parameters: 
-
-* `rsaPublicKey`: The public key staged into the Cycle and Jumpbox VMs
-* The following attributes from the service principal: `applicationSecret`, `tenantId`, `applicationId`
-
-2. Deploy the CycleCloud server:
-
-        $ az group deployment create --name "cyclecloud_deployment" --resource-group "{RESOURCE-GROUP}" --template-file deploy-cyclecloud.json --parameters params-cyclecloud.json
-
-The deployment process runs the installation script `cyclecloud_install.py` as a custom extension script, which installs and sets up CycleCloud.
+The deployment process runs an installation script as a custom script extension, which installs and sets up CycleCloud. This process takes between 5-8mins
 
 ## Login to the CycleCloud application server
 
-* To connect to the CycleCloud webserver, first retrieve the FQDN of the CycleServer VM from the Azure Portal, then browse to https://cycleserverfqdn/. The installation uses a self-signed SSL certificate which may show up with a warning in your browser.
+* To connect to the CycleCloud webserver, first retrieve the FQDN of the CycleServer VM from the Azure Portal, then browse to https://cycleserverfqdn/. 
+
 _You could also reach the webserver through the VM's public IP address:_
 
-        az vm list-ip-addresses -o table -g ${RESOURCE-GROUP} 
+        $ az network public-ip show -g ${RESOURCE-GROUP} -n cycle-ip --query dnsSettings.fqdn
 
 * The first time you access the webserver, the Azure CycleCloud End User License Agreement will be displayed, and you will be prompted to accept it.
-* After that, you will be prompted to create an admin user for the application server. For consistency, it is recommended that you use `cycleadmin` as the username.
+* After that, you will be prompted to create an admin user for the application server. It is recommended that you use the same username that was specified in the parameters. 
 
 
 ## Initialize the CycleCloud CLI
 * The CycleCloud CLI is required for importing custom cluster templates and projects, and is installed in the **Azure CycleCLoud** VM. 
-* To use the CLI, SSH into the VM with the private key that matches the public key supplied in the parameter file. The SSH user is `cycleadmin` by default unless you modified that in the `params-cyclecloud.json` file. 
-* Once on the CycleCloud server, test the CycleCloud CLI
+* To use the CLI, SSH into the VM with the private key that matches the public key supplied in the parameter file. The SSH user is username specified in the parameters.
+
+* Once on the CycleCloud server, initialize the CycleCloud CLI. The username and password are the ones you created and entered in the web UI in the section above.
+* 
+        $ cyclecloud initialize --batch --url=https://localhost --verify-ssl=false --username=${USERNAME} --password=${PASSWORD}
+
+* Test the CycleCloud CLI
 
         $ cyclecloud locker list
-
-
-## Check installation logs
-
-* The Cycle Server installation logs are located in the /var/lib/waagent/custom-script/download/0 directory.
-
-# Create your cluster
-
-* Build your cluster in Cycle by using the provided templates
 
