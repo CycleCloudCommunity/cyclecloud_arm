@@ -8,6 +8,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
   1. `cycle`: The subnet in which the CycleCloud server is started in.
   2. `compute`: A /22 subnet for the HPC clusters
   3. `user`: The subnet for creating login nodes.
+
 - Provisions a VM in the `cycle` subnet and installs Azure CycleCloud on it.
 
 ## Pre-requisites
@@ -33,14 +34,14 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 2. An SSH key
 
     - An SSH key is needed to log into the CycleCloud VM and clusters
-    - See [section below](#generating_ssh_key) for instructions on creating an SSH key if you do not have one.
+    - See [section below](#trouble_with_ssh) for instructions on creating an SSH key if you do not have one.
 
 ## Deploying Azure CycleCloud
 ### From the Azure Portal
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
 
-- Click on the button above to deploy the Azure Cyclecloud into your subscription. 
+- Click on the button above to deploy Azure Cyclecloud into your subscription. 
 - Required Fields:
 
     - `Tenant Id`: The Tenant ID as listed in the service principal
@@ -51,8 +52,6 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 
 
 ### Using the AZ CLI
-
-Use the "Deploy to Azure" link above to launch an Azure CycleCloud installation directly in Azure
 
 * Clone the repo 
 
@@ -79,7 +78,10 @@ _You could also reach the webserver through the VM's public IP address:_
         $ az network public-ip show -g ${RESOURCE-GROUP} -n cycle-ip --query dnsSettings.fqdn
 
 * The first time you access the webserver, the Azure CycleCloud End User License Agreement will be displayed, and you will be prompted to accept it.
+
 * After that, you will be prompted to create an admin user for the application server. It is recommended that you use the same username that was specified in the parameters. 
+
+![createuser](images/cyclecloud-create-user.png)
 
 
 ## Initialize the CycleCloud CLI
@@ -94,3 +96,16 @@ _You could also reach the webserver through the VM's public IP address:_
 
         $ cyclecloud locker list
 
+
+## Trouble with SSH
+- Both Bash and Powershell variants of the Azure Cloud Shell have the SSH client tools installed.
+- To generate an ssh-key:
+![ssh-keygen](images/powershell-ssh-keygen.png)
+
+- To obtain the public key of the generated key, run the following command and copy the output:
+
+        PS Azure:\> cat ~/.ssh/id_rsa.pub
+
+- You may also SSH into the VM from Cloud Shell:
+
+       PS Azure:\> ssh username@cyclecloud.fqdn 
