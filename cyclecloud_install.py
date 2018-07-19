@@ -158,12 +158,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
     _catch_sys_error(["chown", "-R", admin_user, admin_user_cycledir])
     _catch_sys_error(["chmod", "-R", "700", admin_user_cycledir])
 
-    if accept_terms:
-        # stash the cyclecloud configs into the admin_user account as well
-        copytree(homedir + "/.cycle", "/home/" + admin_user + "/.cycle")
-        _catch_sys_error(["chown", "-R", admin_user,
-                        "/home/" + admin_user + "/.cycle"])
-    else:
+    if not accept_terms:
         # reset the installation status so the splash screen re-appears
         print "Resetting installation"
         sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
