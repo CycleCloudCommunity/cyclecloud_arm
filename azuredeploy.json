@@ -205,7 +205,7 @@
             "publicIPAllocationMethod": "Static",
             "idleTimeoutInMinutes": 4,
             "dnsSettings": {
-            "domainNameLabel": "[concat('cyclecloud-', variables('namingInfix'))]"
+            "domainNameLabel": "[concat('cyclecloud', variables('namingInfix'))]"
             }
         },
         "dependsOn": []
