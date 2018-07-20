@@ -34,6 +34,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 2. An SSH key
 
     - An SSH key is needed to log into the CycleCloud VM and clusters
+    - Specifcy a SSH public key, and that will be used in all CycleCloud Clusters as well as the application server.
     - See [section below](#trouble-with-ssh) for instructions on creating an SSH key if you do not have one.
 
 ## Deploying Azure CycleCloud
