@@ -77,7 +77,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
 
     storage_account_name = 'cyclecloud' + random_suffix
     azure_data = {
-        "AzureEnvironment": azure_cloud,
+        "Environment": azure_cloud,
         "AzureRMApplicationId": application_id,
         "AzureRMApplicationSecret": application_secret,
         "AzureRMSubscriptionId": subscription_id,
