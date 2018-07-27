@@ -45,7 +45,7 @@ def create_user_credential(username):
         "PublicKey": public_key,
         "AdType": "Credential",
         "CredentialType": "PublicKey",
-        "Name": username + "/" + username + "-publickey"
+        "Name": username + "/public"
     }
     credential_data_file = tmpdir + "/credential.json"
     with open(credential_data_file, 'w') as fp:
