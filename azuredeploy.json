@@ -74,6 +74,7 @@
             "defaultValue": "latest",
             "allowedValues": [
                 "latest",
+                "7.5.1",
                 "7.5.0",
                 "7.4.0",
                 "7.3.1"
@@ -339,7 +340,7 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('username'),'/.ssh/authorized_keys')]",
-        "cycleDownloadURL": "https://cyclecloudarm.blob.core.windows.net/cyclecloudrelease",
+        "cycleDownloadURL": "https://cyclecloudarm.azureedge.net/cyclecloudrelease",
         "cycleName": "cyclecloud",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
