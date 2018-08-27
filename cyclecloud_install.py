@@ -8,7 +8,7 @@ import random
 from string import ascii_letters, ascii_uppercase, ascii_lowercase, digits
 from subprocess import CalledProcessError, check_output
 from os import path, listdir, makedirs, chdir, fdopen, remove
-from urllib2 import urlopen, Request
+from urllib2 import urlopen, Request, HTTPError, URLError
 from urllib import urlretrieve
 from shutil import rmtree, copy2, move, copytree
 from tempfile import mkstemp, mkdtemp
@@ -23,7 +23,6 @@ cs_cmd = cycle_root + "/cycle_server"
 
 def clean_up():
     rmtree(tmpdir)
-
 
 def _catch_sys_error(cmd_list):
     try:
@@ -193,7 +192,34 @@ def letsEncrypt(fqdn, location):
     # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
     # fqdn = hostname + "." + location + ".cloudapp.azure.com"
     sleep(60)
-    _catch_sys_error([cs_cmd, "keystore", "automatic", "--accept-terms", fqdn])
+    try:
+        cmd_list = [cs_cmd, "keystore", "automatic", "--accept-terms", fqdn]
+        output = check_output(cmd_list)
+        print cmd_list
+        print output
+    except CalledProcessError as e:
+        print "Error getting SSL cert from Lets Encrypt"
+        print "Proceeding with self-signed cert"
+
+
+def get_vm_metadata():
+    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
+    metadata_req = Request(metadata_url, headers={"Metadata": True})
+
+    for i in range(30):
+        print "Fetching metadata"
+        metadata_response = urlopen(metadata_req, timeout=2)
+
+        try:
+            return json.load(metadata_response)
+        except ValueError as e:
+            print "Failed to get metadata %s" % e
+            print "    Retrying"
+            sleep(2)
+            continue
+        except:
+            print "Unable to obtain metadata after 30 tries"
+            raise
 
 
 def start_cc():
@@ -231,7 +257,7 @@ def modify_cs_config():
 
 def download_install_cc(download_url, version):
     chdir(tmpdir)
-    cyclecloud_tar = "cyclecloud-" + version + ".linux64.tar.gz"
+    cyclecloud_tar = "cyclecloud-" + version + "-linux64.tar.gz"
     cc_url = download_url + "/" + version + "/" + cyclecloud_tar
 
     print "Downloading CycleCloud from " + cc_url
@@ -330,11 +356,8 @@ def main():
     modify_cs_config()
     start_cc()
 
-    metadata_url = "http://169.254.169.254/metadata/instance?api-version=2017-08-01"
-    metadata_req = Request(metadata_url, headers={"Metadata": True})
-    metadata_response = urlopen(metadata_req)
-    vm_metadata = json.load(metadata_response)
-
+    vm_metadata = get_vm_metadata()
+    
     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
                           args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password)
@@ -344,3 +367,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
