@@ -221,6 +221,11 @@
             "identity": {
                 "type": "systemAssigned"
             },
+            "plan": {
+                "name": "cyclecloud-centos-vm",
+                "publisher": "azurecyclecloud",
+                "product": "azure-cyclecloud-vm"
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "[parameters('cyclecloudVmSize')]"
@@ -261,9 +266,9 @@
                         }
                     ],
                     "imageReference": {
-                        "offer": "CentOS",
-                        "publisher": "OpenLogic",
-                        "sku": "7.3",
+                        "offer": "azure-cyclecloud-vm",
+                        "publisher": "azurecyclecloud",
+                        "sku": "cyclecloud-centos-vm",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -287,7 +292,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_setup.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
@@ -346,7 +351,7 @@
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
         "cycleSubnet": "cycle",
-        "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cyclecloudVersion'), '/cyclecloud_install.py')]",
+        "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cyclecloudVersion'), '/cyclecloud_setup.py')]",
         "namingInfix": "[toLower(take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
         "resourceLocation": "[resourceGroup().location]"
