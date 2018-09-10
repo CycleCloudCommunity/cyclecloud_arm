@@ -5,6 +5,7 @@ import tarfile
 import json
 import re
 import random
+import sys
 from string import ascii_letters, ascii_uppercase, ascii_lowercase, digits
 from subprocess import CalledProcessError, check_output
 from os import path, listdir, makedirs, chdir, fdopen, remove
@@ -34,6 +35,37 @@ def _catch_sys_error(cmd_list):
         print "Output: %s" % e.output
         raise
 
+
+def reset_installation():
+    # reset the installation status so the splash screen re-appears
+    print "Resetting installation"
+    sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
+    _catch_sys_error(
+        ["/opt/cycle_server/cycle_server", "execute", sql_statement])
+
+def setup_admin_user(admin_username, admin_userpasswd):
+    '''
+    This block completes the setup process for CycleCloud, so that it can automatically be used and scripted against 
+    without any manual intervention. 
+    Creates a admin user account in CycleCloud, and registers the CLI for the admin user.
+    The admin user is the username used to create the Azure CycleCloud server.
+    '''
+    login_user = {
+        "AdType": "AuthenticatedUser",
+        "Name": admin_username,
+        "RawPassword": admin_userpasswd,
+        "Superuser": True
+    }
+    login_user_data = [login_user]
+
+    login_user_data_file = tmpdir + "/login_user_data.json"
+
+    with open(login_user_data_file, 'w') as fp:
+        json.dump(login_user_data, fp)
+
+    copy2(login_user_data_file, cycle_root + "/config/data/")
+
+
 def create_user_credential(username):
     authorized_keyfile = "/home/" + username + "/.ssh/authorized_keys"
     public_key = ""
@@ -52,44 +84,21 @@ def create_user_credential(username):
 
     copy2(credential_data_file, cycle_root + "/config/data/")
 
-def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password):
+
+def register_azure_subscription(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
 
-    subscription_id = vm_metadata["compute"]["subscriptionId"]
-    location = vm_metadata["compute"]["location"]
-    resource_group = vm_metadata["compute"]["resourceGroupName"]
-
-    random_suffix = ''.join(random.SystemRandom().choice(
-        ascii_lowercase) for _ in range(14))
-
     cyclecloud_admin_pw = ""
-    
+
     if password:
         print 'Password specified, using it as the admin password'
         cyclecloud_admin_pw = password
     else:
         random_pw_chars = ([random.choice(ascii_lowercase) for _ in range(20)] +
-                        [random.choice(ascii_uppercase) for _ in range(20)] +
-                        [random.choice(digits) for _ in range(10)])
+                           [random.choice(ascii_uppercase) for _ in range(20)] +
+                           [random.choice(digits) for _ in range(10)])
         random.shuffle(random_pw_chars)
         cyclecloud_admin_pw = ''.join(random_pw_chars)
-
-    storage_account_name = 'cyclecloud' + random_suffix
-    azure_data = {
-        "Environment": azure_cloud,
-        "AzureRMApplicationId": application_id,
-        "AzureRMApplicationSecret": application_secret,
-        "AzureRMSubscriptionId": subscription_id,
-        "AzureRMTenantId": tenant_id,
-        "AzureResourceGroup": resource_group,
-        "DefaultAccount": True,
-        "Location": location,
-        "Name": "azure",
-        "Provider": "azure",
-        "ProviderId": subscription_id,
-        "RMStorageAccount": storage_account_name,
-        "RMStorageContainer": "cyclecloud"
-    }
 
     app_setting_installation = {
         "AdType": "Application.Setting",
@@ -113,46 +122,60 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         app_setting_installation
     ]
 
-    if accept_terms:
-        # Terms accepted, auto-create login user account as well
-        login_user = {
-            "AdType": "AuthenticatedUser",
-            "Name": admin_user,
-            "RawPassword": cyclecloud_admin_pw,
-            "Superuser": True
-        }
-        account_data.append(login_user)
-
     account_data_file = tmpdir + "/account_data.json"
-    azure_data_file = tmpdir + "/azure_data.json"
 
     with open(account_data_file, 'w') as fp:
         json.dump(account_data, fp)
 
+    copy2(account_data_file, cycle_root + "/config/data/")
+    # wait for the data to be imported
+    sleep(5)
+
+    subscription_id = vm_metadata["compute"]["subscriptionId"]
+    location = vm_metadata["compute"]["location"]
+    resource_group = vm_metadata["compute"]["resourceGroupName"]
+
+    random_suffix = ''.join(random.SystemRandom().choice(
+        ascii_lowercase) for _ in range(14))
+
+    storage_account_name = 'cyclecloud' + random_suffix
+    azure_data = {
+        "Environment": azure_cloud,
+        "AzureRMApplicationId": application_id,
+        "AzureRMApplicationSecret": application_secret,
+        "AzureRMSubscriptionId": subscription_id,
+        "AzureRMTenantId": tenant_id,
+        "AzureResourceGroup": resource_group,
+        "DefaultAccount": True,
+        "Location": location,
+        "Name": "azure",
+        "Provider": "azure",
+        "ProviderId": subscription_id,
+        "RMStorageAccount": storage_account_name,
+        "RMStorageContainer": "cyclecloud"
+    }
+
+    azure_data_file = tmpdir + "/azure_data.json"
     with open(azure_data_file, 'w') as fp:
         json.dump(azure_data, fp)
 
-    copy2(account_data_file, cycle_root + "/config/data/")
-
-    # wait for the data to be imported
     password_flag = ("--password=%s" % cyclecloud_admin_pw)
-    sleep(5)
 
     print "Initializing cyclecloud CLI"
     _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost", "--verify-ssl=false", "--username=root", password_flag])
 
     homedir = path.expanduser("~")
-    cycle_config = homedir + "/.cycle/config.ini"
-    with open(cycle_config, "a") as config_file:
-        config_file.write("\n")
-        config_file.write("[pogo azure-storage]\n")
-        config_file.write("type = az\n")
-        config_file.write("subscription_id = " + subscription_id + "\n")
-        config_file.write("tenant_id = " + tenant_id + "\n")
-        config_file.write("application_id = " + application_id + "\n")
-        config_file.write("application_secret = " + application_secret + "\n")
-        config_file.write("matches = az://" +
+    pogo_config = homedir + "/.cycle/pogo.ini"
+    with open(pogo_config, "w") as pogo_config_file:
+        pogo_config_file.write("\n")
+        pogo_config_file.write("[pogo azure-storage]\n")
+        pogo_config_file.write("type = az\n")
+        pogo_config_file.write("subscription_id = " + subscription_id + "\n")
+        pogo_config_file.write("tenant_id = " + tenant_id + "\n")
+        pogo_config_file.write("application_id = " + application_id + "\n")
+        pogo_config_file.write("application_secret = " + application_secret + "\n")
+        pogo_config_file.write("matches = az://" +
                           storage_account_name + "/cyclecloud" + "\n")
 
     print "Registering Azure subscription"
@@ -179,13 +202,6 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
 
     _catch_sys_error(["chown", "-R", admin_user, admin_user_cycledir])
     _catch_sys_error(["chmod", "-R", "700", admin_user_cycledir])
-
-    if not accept_terms:
-        # reset the installation status so the splash screen re-appears
-        print "Resetting installation"
-        sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
-        _catch_sys_error(
-            ["/opt/cycle_server/cycle_server", "execute", sql_statement])
 
 
 def letsEncrypt(fqdn, location):
@@ -219,12 +235,11 @@ def get_vm_metadata():
             continue
         except:
             print "Unable to obtain metadata after 30 tries"
-            raise
+            return None
 
-
-def start_cc():
-    print "Starting CycleCloud server"
-    _catch_sys_error([cs_cmd, "start"])
+def restart_cc():
+    print "Restarting CycleCloud server"
+    _catch_sys_error([cs_cmd, "restart"])
     _catch_sys_error([cs_cmd, "await_startup"])
     _catch_sys_error([cs_cmd, "status"])
 
@@ -308,14 +323,28 @@ def main():
     print("Debugging arguments: %s" % args)
 
     modify_cs_config()
-    start_cc()
+    restart_cc()
+    # create_initial_user()
+    create_user_credential(args.username)
 
     vm_metadata = get_vm_metadata()
-    
-    letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
-    account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
-                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password)
-    create_user_credential(args.username)
+
+    if vm_metadata is not None:
+        letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
+        try:
+            register_azure_subscription(vm_metadata, args.tenantId, args.applicationId,
+                            args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password)
+        except:
+            e = sys.exc_info()[0]
+            print ("Error registering azure subscription. %s. Check the service principal credentials. Skipping registration." % e)
+    else:
+        print "Failed to get VM metadata, skipping lets encrypt and azure subscription registrations. Please perform these steps manually."
+
+    if args.acceptTerms and args.password:
+        setup_admin_user(args.username, args.password)
+    else:
+        reset_installation()
+
     clean_up()
 
 
