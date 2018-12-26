@@ -261,7 +261,20 @@ def download_install_cc(download_url, version):
     cc_url = download_url + "/" + version + "/" + cyclecloud_tar
 
     print "Downloading CycleCloud from " + cc_url
-    urlretrieve(cc_url, cyclecloud_tar)
+    remaining_download_tries = 4
+
+    while remaining_download_tries > 0 :
+        try:
+            urlretrieve(cc_url, cyclecloud_tar)
+            print("successfully downloaded CycleCloud")
+            sleep(1)
+        except:
+            print("Error downloading " + cc_url +" on try no: " + str(5 - remaining_download_tries))
+            remaining_download_tries = remaining_download_tries - 1
+            sleep(10)
+            continue
+        else:
+            break
 
     cc_tar = tarfile.open(cyclecloud_tar, "r:gz")
     cc_tar.extractall(path=tmpdir)
