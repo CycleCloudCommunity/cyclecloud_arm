@@ -74,16 +74,10 @@
             "defaultValue": "latest",
             "allowedValues": [
                 "latest",
+                "7.7.1",
                 "7.6.1",
-                "7.6.0",
-                "7.5.5",
-                "7.5.4",
-                "7.5.2",
-                "7.5.1",
-                "7.5.0",
-                "7.4.0",
-                "7.3.1"
-            ],
+                "7.6.0"
+           ],
             "type": "string"
         },
         "azureSovereignCloud": {
