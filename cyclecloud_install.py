@@ -303,7 +303,7 @@ def download_install_cc(download_url, version):
     chdir(tmpdir)
 
     print "Installing Azure CycleCloud server"
-    _catch_sys_error(["cycle_server/install.sh", "--nostart"])
+    _catch_sys_error(["cycle_server/install.sh", "--nostart", "--batch"])
 
 
 def install_pre_req():
