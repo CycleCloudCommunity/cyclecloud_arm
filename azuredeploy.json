@@ -286,7 +286,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', '--storageAccount ', '\"', parameters('storageAccount'), '\"']"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
