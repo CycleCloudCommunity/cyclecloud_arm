@@ -19,6 +19,9 @@
     },
     "cyclecloudVersion": {
       "value": "latest"
+    },
+    "storageAccountLocation": {
+      "value": ""
     }
   }
 }

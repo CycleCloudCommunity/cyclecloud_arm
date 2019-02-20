@@ -52,7 +52,7 @@ def create_user_credential(username):
 
     copy2(credential_data_file, cycle_root + "/config/data/")
 
-def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password):
+def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password, storageAccount):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
 
     subscription_id = vm_metadata["compute"]["subscriptionId"]
@@ -74,7 +74,12 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         random.shuffle(random_pw_chars)
         cyclecloud_admin_pw = ''.join(random_pw_chars)
 
-    storage_account_name = 'cyclecloud' + random_suffix
+    if storageAccount:
+        print 'Storage account specified, using it as the default locker'
+        storage_account_name = storageAccount
+    else:
+        storage_account_name = 'cyclecloud' + random_suffix
+
     azure_data = {
         "Environment": azure_cloud,
         "AzureRMApplicationId": application_id,
@@ -298,7 +303,7 @@ def download_install_cc(download_url, version):
     chdir(tmpdir)
 
     print "Installing Azure CycleCloud server"
-    _catch_sys_error(["cycle_server/install.sh", "--nostart"])
+    _catch_sys_error(["cycle_server/install.sh", "--nostart", "--batch"])
 
 
 def install_pre_req():
@@ -360,6 +365,10 @@ def main():
                         dest="password",
                         help="The password for the CycleCloud UI user")
 
+    parser.add_argument("--storageAccount",
+                        dest="storageAccount",
+                        help="The storage account to use as a CycleCloud locker")
+
     args = parser.parse_args()
 
     print("Debugging arguments: %s" % args)
@@ -373,7 +382,7 @@ def main():
     
     letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
-                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password)
+                          args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password, args.storageAccount)
     create_user_credential(args.username)
     clean_up()
 
