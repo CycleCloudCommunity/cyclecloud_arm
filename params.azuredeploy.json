@@ -20,7 +20,7 @@
     "cyclecloudVersion": {
       "value": "latest"
     },
-    "storageAccount": {
+    "storageAccountLocation": {
       "value": ""
     }
   }

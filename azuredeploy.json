@@ -101,6 +101,14 @@
             },
             "defaultValue": "azurecyclecloud",
             "type": "string"
+        },
+        "storageAccountLocation": {
+            "maxLength": 36,
+            "metadata": {
+                "description": "Name of storage account to use for Azure CycleCloud storage"
+            },
+            "defaultValue": "",
+            "type": "string"
         }
     },
     "resources": [
@@ -286,7 +294,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', '--storageAccount ', '\"', parameters('storageAccount'), '\"']"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
