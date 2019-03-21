@@ -55,6 +55,10 @@ def create_user_credential(username):
 def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_secret, admin_user, azure_cloud, accept_terms, password, storageAccount):
     print "Setting up azure account in CycleCloud and initializing cyclecloud CLI"
 
+    if path.isfile(cycle_root + "/config/data/account_data.json.imported"):
+        print 'Azure account is already configured in CycleCloud. Skipping...'
+        return
+
     subscription_id = vm_metadata["compute"]["subscriptionId"]
     location = vm_metadata["compute"]["location"]
     resource_group = vm_metadata["compute"]["resourceGroupName"]
