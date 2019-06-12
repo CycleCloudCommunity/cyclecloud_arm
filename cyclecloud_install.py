@@ -148,7 +148,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
     sleep(5)
 
     print "Initializing cylcecloud CLI"
-    _catch_sys_error(["/usr/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
+    _catch_sys_error(["/usr/local/bin/cyclecloud", "initialize", "--loglevel=debug", "--batch",
                       "--url=https://localhost", "--verify-ssl=false", "--username=root", password_flag])
 
     homedir = path.expanduser("~")
@@ -166,7 +166,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
 
     print "Registering Azure subscription"
     # create the cloud provide account
-    _catch_sys_error(["/usr/bin/cyclecloud", "account",
+    _catch_sys_error(["/usr/local/bin/cyclecloud", "account",
                       "create", "-f", azure_data_file])
 
     # create a pogo.ini for the admin_user so that cyclecloud project upload works
@@ -298,11 +298,8 @@ def download_install_cc(download_url, version):
     for cli_install_dir in listdir("."):
         if path.isdir(cli_install_dir) and re.match("cyclecloud-cli-installer", cli_install_dir):
             print "Found CLI install DIR %s" % cli_install_dir
-            chdir(cli_install_dir + "/packages")
-            urlretrieve("https://bootstrap.pypa.io/get-pip.py", "get-pip.py")
-            _catch_sys_error(["python", "get-pip.py"])
-            _catch_sys_error(["pip", "install", "cyclecloud-cli-sdist.tar.gz"])
-            _catch_sys_error(["pip", "install", "pogo-sdist.tar.gz"])
+            chdir(cli_install_dir)
+            _catch_sys_error(["./install.sh", "--system"])
 
     chdir(tmpdir)
 
