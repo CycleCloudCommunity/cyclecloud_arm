@@ -152,42 +152,11 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
                       "--url=https://localhost", "--verify-ssl=false", "--username=root", password_flag])
 
     homedir = path.expanduser("~")
-    cycle_config = homedir + "/.cycle/config.ini"
-    with open(cycle_config, "a") as config_file:
-        config_file.write("\n")
-        config_file.write("[pogo azure-storage]\n")
-        config_file.write("type = az\n")
-        config_file.write("subscription_id = " + subscription_id + "\n")
-        config_file.write("tenant_id = " + tenant_id + "\n")
-        config_file.write("application_id = " + application_id + "\n")
-        config_file.write("application_secret = " + application_secret + "\n")
-        config_file.write("matches = az://" +
-                          storage_account_name + "/cyclecloud" + "\n")
 
     print "Registering Azure subscription"
     # create the cloud provide account
     _catch_sys_error(["/usr/local/bin/cyclecloud", "account",
                       "create", "-f", azure_data_file])
-
-    # create a pogo.ini for the admin_user so that cyclecloud project upload works
-    admin_user_cycledir = "/home/" + admin_user + "/.cycle"
-    if not path.isdir(admin_user_cycledir):
-        makedirs(admin_user_cycledir, mode=700)
-
-    pogo_config = admin_user_cycledir + "/pogo.ini"
-
-    with open(pogo_config, "w") as pogo_config:
-        pogo_config.write("[pogo azure-storage]\n")
-        pogo_config.write("type = az\n")
-        pogo_config.write("subscription_id = " + subscription_id + "\n")
-        pogo_config.write("tenant_id = " + tenant_id + "\n")
-        pogo_config.write("application_id = " + application_id + "\n")
-        pogo_config.write("application_secret = " + application_secret + "\n")
-        pogo_config.write("matches = az://" +
-                          storage_account_name + "/cyclecloud" + "\n")
-
-    _catch_sys_error(["chown", "-R", admin_user, admin_user_cycledir])
-    _catch_sys_error(["chmod", "-R", "700", admin_user_cycledir])
 
     if not accept_terms:
         # reset the installation status so the splash screen re-appears
@@ -195,6 +164,11 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         sql_statement = 'update Application.Setting set Value = false where name ==\"cycleserver.installation.complete\"'
         _catch_sys_error(
             ["/opt/cycle_server/cycle_server", "execute", sql_statement])
+
+    # set the permissions so that the first login works.
+    perms_sql_statement = 'update Application.Setting set Value = false where Name == \"authorization.check_datastore_permissions\"'
+    _catch_sys_error(
+        ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
 
 
 def letsEncrypt(fqdn, location):
