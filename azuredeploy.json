@@ -66,26 +66,6 @@
                 "description": "Type of storage for the CycleCloud VM: Premium_LRS or Standard_LRS"
             }
         },
-        "cyclecloudVersion": {
-            "maxLength": 32,
-            "metadata": {
-                "description": "CycleCloud Software Version to install"
-            },
-            "defaultValue": "latest",
-            "allowedValues": [
-                "latest",
-                "7.9.0",
-                "7.8.0",
-                "7.7.5",
-                "7.7.4",
-                "7.7.3",
-                "7.7.2",
-                "7.7.1",
-                "7.6.1",
-                "7.6.0"
-           ],
-            "type": "string"
-        },
         "azureSovereignCloud": {
             "maxLength": 36,
             "metadata": {
@@ -300,7 +280,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --downloadURL ', '\"', variables('cycleDownloadURL'), '\"', ' --cyclecloudVersion ', '\"', parameters('cyclecloudVersion'),  '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
@@ -353,13 +333,12 @@
     "variables": {
         "computeApiVersion": "2017-03-30",
         "authorizedKeyFile": "[concat('/home/', parameters('username'),'/.ssh/authorized_keys')]",
-        "cycleDownloadURL": "https://cyclecloudarm.azureedge.net/cyclecloudrelease",
         "cycleName": "cyclecloud",
         "cycleNic": "cycle-nic",
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
         "cycleSubnet": "cycle",
-        "installScriptURL": "[concat(variables('cycleDownloadURL'), '/', parameters('cyclecloudVersion'), '/cyclecloud_install.py')]",
+        "installScriptURL": "https://cyclecloudarm.azureedge.net/cyclecloudrelease/latest/cyclecloud_install.py",
         "namingInfix": "[toLower(take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
         "resourceLocation": "[resourceGroup().location]"

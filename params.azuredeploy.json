@@ -17,9 +17,6 @@
     "tenantId": {
       "value": ""
     },
-    "cyclecloudVersion": {
-      "value": "latest"
-    },
     "storageAccountLocation": {
       "value": ""
     }
