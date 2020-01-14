@@ -40,7 +40,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 ## Deploying Azure CycleCloud
 ### From the Azure Portal
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fdeploy-azure%2Fazuredeploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCycleCloudCommunity%2Fcyclecloud_arm%2Fmaster%2Fazuredeploy.json)
 
 - Click on the button above to deploy Azure Cyclecloud into your subscription. 
 - Required Fields:
