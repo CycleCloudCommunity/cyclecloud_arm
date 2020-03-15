@@ -105,6 +105,14 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         "Name": "cycleserver.installation.complete",
         "Value": True
     }
+    distribution_method ={
+        "Category": "system",
+        "Status": "internal",
+        "AdType": "Application.Setting",
+        "Description": "CycleCloud distribution method e.g. marketplace, container, manual.",
+        "Value": "arm_template",
+        "Name": "distribution_method"
+    }
     initial_user = {
         "AdType": "Application.Setting",
         "Name": "cycleserver.installation.initial_user",
@@ -119,6 +127,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
     account_data = [
         authenticated_user,
         initial_user,
+        distribution_method,
         app_setting_installation
     ]
 
@@ -171,9 +180,7 @@ def account_and_cli_setup(vm_metadata, tenant_id, application_id, application_se
         ["/opt/cycle_server/cycle_server", "execute", perms_sql_statement])
 
 
-def letsEncrypt(fqdn, location):
-    # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
-    # fqdn = hostname + "." + location + ".cloudapp.azure.com"
+def letsEncrypt(fqdn):
     sleep(60)
     try:
         cmd_list = [cs_cmd, "keystore", "automatic", "--accept-terms", fqdn]
@@ -309,14 +316,15 @@ def main():
     modify_cs_config()
     start_cc()
 
+    # FQDN is assumed to be in the form: hostname.location.cloudapp.azure.com
+    # fqdn = hostname + "." + location + ".cloudapp.azure.com"
     vm_metadata = get_vm_metadata()
-
-    letsEncrypt(args.hostname, vm_metadata["compute"]["location"])
+    fqdn = args.hostname + "." + vm_metadata["compute"]["location"] + ".cloudapp.azure.com"
+    letsEncrypt(fqdn)
     account_and_cli_setup(vm_metadata, args.tenantId, args.applicationId,
                           args.applicationSecret, args.username, args.azureSovereignCloud, args.acceptTerms, args.password, args.storageAccount)
     create_user_credential(args.username)
     clean_up()
-
 
 if __name__ == "__main__":
     main()
