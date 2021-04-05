@@ -43,9 +43,15 @@
              "maxLength": 32,
              "type": "string",
              "metadata": {
-               "description": "The username for logging into the VM"
+               "description": "The username for initial CycleCloud admin user and for logging into the VM"
              }
-         },
+        },
+        "password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The CycleCloud Admin user's initial password"
+            }
+        },
         "cyclecloudVmSize": {
             "maxLength": 36,
             "metadata": {
@@ -254,9 +260,9 @@
                         }
                     ],
                     "imageReference": {
-                        "offer": "CentOS",
+                        "offer": "CentOS-HPC",
                         "publisher": "OpenLogic",
-                        "sku": "7.3",
+                        "sku": "8_1",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -280,7 +286,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --username ', '\"', parameters('username'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
+                            "commandToExecute": "[concat('python cyclecloud_install.py ', '--accept_terms', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --username ', '\"', parameters('username'), '\"', ' --password ', '\"', parameters('password'), '\"', ' --publickey ', '\"', parameters('SSH Public Key'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {

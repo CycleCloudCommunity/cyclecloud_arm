@@ -5,6 +5,9 @@
     "username": {
       "value": ""
     },
+    "password": {
+      "value": ""
+    },
     "SSH Public Key": {
       "value": ""
     },
