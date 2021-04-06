@@ -66,7 +66,7 @@ Deploying Azure CycleCloud into a subscription using an Azure Resource Manager t
 
 * Deploy the template:
 
-        $ az group deployment create --name "azure_cyclecloud_deployment" --resource-group AzureCycleCloud --template-file azuredeploy.json --parameters params.azuredeploy.json
+        $ az deployment group create --name "azure_cyclecloud_deployment" --resource-group AzureCycleCloud --template-file azuredeploy.json --parameters params.azuredeploy.json
 
 The deployment process runs an installation script as a custom script extension, which installs and sets up CycleCloud. This process takes between 5-8mins
 

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "outputs": {
         "fqdn": {
@@ -94,13 +94,20 @@
             "defaultValue": "azurecyclecloud",
             "type": "string"
         },
-        "storageAccountLocation": {
-            "maxLength": 36,
+        "storageAccountName": {
+            "minLength": 3,
+            "maxLength": 24,
             "metadata": {
                 "description": "Name of storage account to use for Azure CycleCloud storage"
             },
-            "defaultValue": "",
             "type": "string"
+        },
+        "useLetsEncrypt": {
+            "defaultValue": true,
+            "type": "bool",
+            "metadata": {
+                "description": "Use LetsEncrypt to obtain an SSL certificate for HTTPS. (Requires public IP and Hostname)"
+            }
         }
     },
     "resources": [
@@ -286,7 +293,7 @@
                     "properties": {
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
-                            "commandToExecute": "[concat('python cyclecloud_install.py ', '--accept_terms', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --username ', '\"', parameters('username'), '\"', ' --password ', '\"', parameters('password'), '\"', ' --publickey ', '\"', parameters('SSH Public Key'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountLocation'), '\"')]"
+                            "commandToExecute": "[concat('python3 cyclecloud_install.py ', '--acceptTerms', ' --applicationSecret ', '\"', parameters('applicationSecret'), '\"', ' --applicationId ', '\"', parameters('applicationId'), '\"', ' --tenantId ', '\"', parameters('tenantId'), '\"', ' --azureSovereignCloud ', '\"', parameters('azureSovereignCloud'), '\"', ' --username ', '\"', parameters('username'), '\"', ' --password ', '\"', parameters('password'), '\"', ' --publickey ', '\"', parameters('SSH Public Key'), '\"', ' --hostname ', '\"', reference(variables('cycleIPName')).dnsSettings.fqdn, '\"', ' --storageAccount ', '\"', parameters('storageAccountName'), '\"', ' --resourceGroup ', '\"', resourceGroup().name, '\"', variables('letsEncrypt'), ' --webServerPort 80 --webServerSslPort 443 --webServerMaxHeapSize 4096M')]"
                         },
                         "publisher": "Microsoft.Azure.Extensions",
                         "settings": {
@@ -344,10 +351,11 @@
         "cycleNsgName": "cycle-nsg",
         "cycleIPName": "cycle-ip",
         "cycleSubnet": "cycle",
-        "installScriptURL": "https://cyclecloudarm.azureedge.net/cyclecloudrelease/latest/cyclecloud_install.py",
+        "installScriptURL": "https://raw.githubusercontent.com/CycleCloudCommunity/cyclecloud_arm/feature/update_cyclecloud_install/cyclecloud_install.py",
         "namingInfix": "[toLower(take(uniqueString(subscription().subscriptionId, resourceGroup().id), 6))]",
         "networkApiVersion": "2017-06-01",
-        "resourceLocation": "[resourceGroup().location]"
+        "resourceLocation": "[resourceGroup().location]",
+        "letsEncrypt": "[if(equals(parameters('useLetsEncrypt'), true()), ' --useLetsEncrypt', '')]"
     }
 }
 
