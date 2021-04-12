@@ -5,6 +5,9 @@
     "username": {
       "value": ""
     },
+    "password": {
+      "value": ""
+    },
     "SSH Public Key": {
       "value": ""
     },
@@ -17,7 +20,7 @@
     "tenantId": {
       "value": ""
     },
-    "storageAccountLocation": {
+    "storageAccountName": {
       "value": ""
     }
   }
