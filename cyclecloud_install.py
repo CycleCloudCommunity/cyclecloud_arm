@@ -421,15 +421,17 @@ def configure_msft_repos():
 def configure_msft_apt_repos():
     print("Configuring Microsoft apt repository for CycleCloud install")
     _catch_sys_error(
-        ["wget", "-qO", "-", "https://packages.microsoft.com/keys/microsoft.asc", "|", "apt-key", "add", "-"])
+        ["wget", "-q", "-O", "/tmp/microsoft.asc", "https://packages.microsoft.com/keys/microsoft.asc"])
+    _catch_sys_error(
+        ["apt-key", "add", "/tmp/microsoft.asc"])
     
-    lsb_release = _catch_sys_error(["lsb_release", "-cs"])
+    lsb_release = _catch_sys_error(["lsb_release", "-cs"]).decode("utf-8").strip()
     with open('/etc/apt/sources.list.d/azure-cli.list', 'w') as f:
         f.write("deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {} main".format(lsb_release))
 
     with open('/etc/apt/sources.list.d/cyclecloud.list', 'w') as f:
         f.write("deb [arch=amd64] https://packages.microsoft.com/repos/cyclecloud {} main".format(lsb_release))
-    _catch_sys_error(["apt", "-y", "update"])
+    _catch_sys_error(["apt", "update", "-y"])
 
 def configure_msft_yum_repos():
     print("Configuring Microsoft yum repository for CycleCloud install")
@@ -464,6 +466,8 @@ def install_pre_req():
 
     if "ubuntu" in str(platform.platform()).lower():
         _catch_sys_error(["apt", "install", "-y", "openjdk-8-jre-headless"])
+        _catch_sys_error(["apt", "install", "-y", "unzip"])
+        _catch_sys_error(["apt", "install", "-y", "python3-venv"])
         _catch_sys_error(["apt", "install", "-y", "azure-cli"])
     else:
         _catch_sys_error(["yum", "install", "-y", "java-1.8.0-openjdk-headless"])
