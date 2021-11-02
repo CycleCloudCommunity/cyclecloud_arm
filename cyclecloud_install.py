@@ -88,7 +88,10 @@ def create_user_credential(username, public_key=None):
 
     config_path = os.path.join(cycle_root, "config/data/")
     print("Copying config to {}".format(config_path))
-    copy2(credential_data_file, config_path)
+    _catch_sys_error(["chown", "cycle_server:cycle_server", credential_data_file])
+    # Don't use copy2 here since ownership matters
+    # copy2(credential_data_file, config_path)
+    _catch_sys_error(["mv", credential_data_file, config_path])
 
 def generate_password_string():
     random_pw_chars = ([random.choice(ascii_lowercase) for _ in range(20)] +
@@ -207,7 +210,11 @@ def cyclecloud_account_setup(vm_metadata, use_managed_identity, tenant_id, appli
     with open(account_data_file, 'w') as fp:
         json.dump(account_data, fp)
 
-    copy2(account_data_file, cycle_root + "/config/data/")
+    config_path = os.path.join(cycle_root, "config/data/")
+    _catch_sys_error(["chown", "cycle_server:cycle_server", account_data_file])
+    # Don't use copy2 here since ownership matters
+    # copy2(account_data_file, config_path)
+    _catch_sys_error(["mv", account_data_file, config_path])
     sleep(5)
 
     if not accept_terms:
@@ -465,6 +472,7 @@ def install_pre_req():
     # Taken from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-yum?view=azure-cli-latest
 
     if "ubuntu" in str(platform.platform()).lower():
+        _catch_sys_error(["apt", "update", "-y"])
         _catch_sys_error(["apt", "install", "-y", "openjdk-8-jre-headless"])
         _catch_sys_error(["apt", "install", "-y", "unzip"])
         _catch_sys_error(["apt", "install", "-y", "python3-venv"])
